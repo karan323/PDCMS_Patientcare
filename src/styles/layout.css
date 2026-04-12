@@ -1,0 +1,140 @@
+.page-shell {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 28px;
+  padding: 24px;
+}
+
+.sidebar,
+.surface,
+.hero,
+.footer-actions {
+  backdrop-filter: blur(16px);
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow);
+}
+
+.sidebar {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 22px;
+  border-radius: 30px;
+}
+
+.main-content {
+  display: grid;
+  gap: 22px;
+}
+
+.hero,
+.surface,
+.footer-actions {
+  border-radius: var(--radius-xl);
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.85fr);
+  gap: 28px;
+  padding: 34px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(216, 239, 228, 0.95), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(233, 221, 178, 0.46), transparent 22%),
+    linear-gradient(135deg, rgba(255, 252, 247, 0.92), rgba(240, 247, 242, 0.9));
+}
+
+.hero h2 {
+  max-width: 12ch;
+  font-size: clamp(2.6rem, 5vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  margin-top: 16px;
+}
+
+.surface {
+  padding: 26px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.section-head.compact {
+  margin-bottom: 16px;
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.metrics-grid,
+.availability-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.metrics-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.dashboard-layout,
+.two-column,
+.subsection-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-layout,
+.two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dashboard-layout--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-span-2 {
+  grid-column: span 2;
+}
+
+.availability-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.appointment-form {
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}

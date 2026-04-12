@@ -1,0 +1,20 @@
+:root {
+  --bg: #f2f5ef;
+  --surface: rgba(255, 252, 247, 0.84);
+  --surface-strong: #ffffff;
+  --line: #d8e3d6;
+  --line-strong: #bfcebf;
+  --text: #17362d;
+  --muted: #62766c;
+  --mint: #d8efe4;
+  --mint-strong: #2f7f68;
+  --sand: #f3ead8;
+  --rose: #f2dfd8;
+  --gold: #e9ddb2;
+  --teal: #d7ebe3;
+  --ink-soft: #23473a;
+  --shadow: 0 24px 80px rgba(41, 66, 53, 0.11);
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+}

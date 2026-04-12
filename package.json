@@ -1,0 +1,18 @@
+{
+  "name": "pdcms-patients-care",
+  "version": "1.0.0",
+  "description": "Frontend foundation for an inpatient care management product. The current scope covers the staff-side workflow for admission, care tracking, medication, reports, consultant scheduling, follow-up booking, discharge, internal notes, and audit visibility.",
+  "main": "src/server/index.js",
+  "scripts": {
+    "dev": "node src/server/index.js",
+    "start": "node src/server/index.js",
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
+  }
+}
