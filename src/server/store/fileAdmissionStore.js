@@ -19,10 +19,21 @@ class FileAdmissionStore {
   }
 
   async listRecent(limit = 10) {
+    return this.list({ limit });
+  }
+
+  async list({ query = "", limit = null } = {}) {
     const data = await this.#read();
-    return [...data.admissions]
-      .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt))
-      .slice(0, limit);
+    const normalizedQuery = String(query || "").trim().toLowerCase();
+    const items = [...data.admissions]
+      .filter(item => this.#matchesQuery(item, normalizedQuery))
+      .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
+
+    if (Number.isInteger(limit) && limit > 0) {
+      return items.slice(0, limit);
+    }
+
+    return items;
   }
 
   async getById(id) {
@@ -56,6 +67,28 @@ class FileAdmissionStore {
   async #read() {
     const raw = await fs.readFile(this.filePath, "utf8");
     return JSON.parse(raw);
+  }
+
+  #matchesQuery(item, query) {
+    if (!query) {
+      return true;
+    }
+
+    const searchableValues = [
+      item.patientId,
+      item.admissionId,
+      item.fullName,
+      item.mobileNumber,
+      item.department,
+      item.doctor,
+      item.status,
+      item.ward,
+      item.room,
+      item.bedNumber,
+      item.diagnosis
+    ];
+
+    return searchableValues.some(value => String(value || "").toLowerCase().includes(query));
   }
 
   async #write(data) {

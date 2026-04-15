@@ -16,7 +16,14 @@ const writeRuntimeConfig = async () => {
 const build = async () => {
   await fs.rm(outputDirectory, { recursive: true, force: true });
   await fs.mkdir(outputDirectory, { recursive: true });
-  await fs.copyFile(path.join(projectRoot, "index.html"), path.join(outputDirectory, "index.html"));
+  const projectFiles = await fs.readdir(projectRoot, { withFileTypes: true });
+  const htmlFiles = projectFiles
+    .filter(entry => entry.isFile() && entry.name.endsWith(".html"))
+    .map(entry => entry.name);
+
+  await Promise.all(
+    htmlFiles.map(fileName => fs.copyFile(path.join(projectRoot, fileName), path.join(outputDirectory, fileName)))
+  );
   await fs.cp(path.join(projectRoot, "src"), path.join(outputDirectory, "src"), { recursive: true });
   await writeRuntimeConfig();
 };

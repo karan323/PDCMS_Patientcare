@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search and review patient admissions saved in the PDCMS backend.">
+  <title>Patient Search | Hospital Inpatient Staff Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <div class="page-shell page-shell--search">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">IP</div>
+        <div>
+          <p class="eyebrow">Internal hospital panel</p>
+          <h1>Patient Search</h1>
+        </div>
+      </div>
+      <section class="sidebar-card">
+        <p class="section-label">Search scope</p>
+        <ul class="sidebar-list">
+          <li>Patient ID and admission ID</li>
+          <li>Full name and mobile number</li>
+          <li>Department, doctor, and status</li>
+          <li>Ward, room, bed, and diagnosis</li>
+        </ul>
+      </section>
+      <a class="secondary-btn" href="/">Back to dashboard</a>
+    </aside>
+
+    <main class="main-content">
+      <header class="hero hero--search">
+        <div class="hero-copy-wrap">
+          <div class="hero-intro">
+            <p class="eyebrow">Admission directory</p>
+            <span class="hero-badge">Search live backend records</span>
+          </div>
+          <h2>Find patients quickly without leaving the inpatient workflow.</h2>
+          <p class="hero-copy">
+            This page loads admissions directly from the server and lets staff search by patient identifiers, ward location, doctor, department, and status.
+          </p>
+        </div>
+        <div class="hero-aside">
+          <div class="info-panel patient-search-summary">
+            <p class="section-label">Current result set</p>
+            <strong data-patient-search-count>0 records</strong>
+            <span data-patient-search-caption>Loading patients from the backend.</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="surface">
+        <div class="section-head">
+          <div>
+            <p class="section-label">Search</p>
+            <h3>Patient directory</h3>
+          </div>
+          <p class="section-intro">Use any known patient detail to search. Leave it blank to load every saved admission.</p>
+        </div>
+
+        <form class="patient-search-form" data-patient-search-form>
+          <div class="field">
+            <label for="patient-search-input">Search patients</label>
+            <input
+              id="patient-search-input"
+              type="search"
+              placeholder="Search by patient ID, name, department, doctor, mobile, ward, room, or status"
+              data-patient-search-input
+            >
+          </div>
+          <div class="patient-search-actions">
+            <button class="primary-btn" type="submit">Search</button>
+            <button class="secondary-btn" type="button" data-patient-search-reset>Clear</button>
+          </div>
+        </form>
+
+        <p class="form-status patient-search-status" data-patient-search-status aria-live="polite"></p>
+      </section>
+
+      <section class="surface">
+        <div class="section-head compact">
+          <div>
+            <p class="section-label">Records</p>
+            <h3>Saved patients</h3>
+          </div>
+        </div>
+
+        <div class="patient-record-list" data-patient-record-list></div>
+        <p class="workload-empty" data-patient-record-empty hidden>No patient records found.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="src/scripts/product/runtime-config.js"></script>
+  <script src="src/scripts/product/config.js"></script>
+  <script src="src/scripts/ui/patient-search.js"></script>
+</body>
+</html>

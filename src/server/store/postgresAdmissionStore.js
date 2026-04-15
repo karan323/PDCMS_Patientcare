@@ -46,6 +46,39 @@ class PostgresAdmissionStore {
   }
 
   async listRecent(limit = 10) {
+    return this.list({ limit });
+  }
+
+  async list({ query = "", limit = null } = {}) {
+    const normalizedQuery = String(query || "").trim();
+    const parameters = [];
+    const conditions = [];
+
+    if (normalizedQuery) {
+      parameters.push(`%${normalizedQuery}%`);
+      conditions.push(`
+        (
+          patient_id ILIKE $${parameters.length}
+          OR admission_id ILIKE $${parameters.length}
+          OR full_name ILIKE $${parameters.length}
+          OR COALESCE(mobile_number, '') ILIKE $${parameters.length}
+          OR department ILIKE $${parameters.length}
+          OR COALESCE(doctor, '') ILIKE $${parameters.length}
+          OR status ILIKE $${parameters.length}
+          OR COALESCE(ward, '') ILIKE $${parameters.length}
+          OR COALESCE(room, '') ILIKE $${parameters.length}
+          OR COALESCE(bed_number, '') ILIKE $${parameters.length}
+          OR COALESCE(diagnosis, '') ILIKE $${parameters.length}
+        )
+      `);
+    }
+
+    let limitClause = "";
+    if (Number.isInteger(limit) && limit > 0) {
+      parameters.push(limit);
+      limitClause = `LIMIT $${parameters.length}`;
+    }
+
     const result = await this.pool.query(
       `
         SELECT
@@ -73,10 +106,11 @@ class PostgresAdmissionStore {
           status,
           created_at AS "createdAt"
         FROM admissions
+        ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
         ORDER BY created_at DESC
-        LIMIT $1
+        ${limitClause}
       `,
-      [limit]
+      parameters
     );
 
     return result.rows;

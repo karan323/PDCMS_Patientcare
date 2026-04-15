@@ -149,6 +149,51 @@ test("admission validation rejects incomplete payloads", async () => {
   }
 });
 
+test("admission list supports loading all records and server-side search", async () => {
+  const context = await createTestServer();
+
+  try {
+    await fetch(`${context.baseUrl}/api/admissions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: "Taylor Reed",
+        admissionDate: "2026-04-12",
+        department: "Cardiology",
+        status: "Stable",
+        doctor: "Dr. Karim"
+      })
+    });
+
+    await fetch(`${context.baseUrl}/api/admissions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: "Morgan Lee",
+        admissionDate: "2026-04-13",
+        department: "Neurology",
+        status: "Observation",
+        doctor: "Dr. Nair"
+      })
+    });
+
+    const allResponse = await fetch(`${context.baseUrl}/api/admissions?all=true`);
+    const allPayload = await allResponse.json();
+
+    assert.equal(allResponse.status, 200);
+    assert.equal(allPayload.items.length, 2);
+
+    const searchResponse = await fetch(`${context.baseUrl}/api/admissions?q=neurology`);
+    const searchPayload = await searchResponse.json();
+
+    assert.equal(searchResponse.status, 200);
+    assert.equal(searchPayload.items.length, 1);
+    assert.equal(searchPayload.items[0].fullName, "Morgan Lee");
+  } finally {
+    await context.close();
+  }
+});
+
 test("cors preflight allows configured frontend origins", async () => {
   const previousOrigins = process.env.CORS_ALLOWED_ORIGINS;
   process.env.CORS_ALLOWED_ORIGINS = "https://frontend.example.com";

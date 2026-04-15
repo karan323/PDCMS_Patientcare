@@ -11,10 +11,18 @@ const parseLimit = value => {
   return Math.min(parsed, 50);
 };
 
+const isTruthy = value => {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return normalized === "true" || normalized === "1" || normalized === "yes";
+};
+
 const createApp = ({ workloadStore, admissionStore, storageKind }) => {
   const app = express();
   const rootDirectory = process.cwd();
   const sourceDirectory = path.join(rootDirectory, "src");
+  const sendHtmlPage = fileName => (_request, response) => {
+    response.sendFile(path.join(rootDirectory, fileName));
+  };
   const allowedOrigins = String(process.env.CORS_ALLOWED_ORIGINS || "")
     .split(",")
     .map(origin => origin.trim())
@@ -95,7 +103,13 @@ const createApp = ({ workloadStore, admissionStore, storageKind }) => {
   });
 
   app.get("/api/admissions", async (request, response) => {
-    const items = await admissionStore.listRecent(parseLimit(request.query.limit));
+    const query = typeof request.query.q === "string" ? request.query.q.trim() : "";
+    const shouldLoadAll = isTruthy(request.query.all);
+    const items = await admissionStore.list({
+      query,
+      limit: shouldLoadAll || query ? null : parseLimit(request.query.limit)
+    });
+
     response.json({ items });
   });
 
@@ -120,9 +134,9 @@ const createApp = ({ workloadStore, admissionStore, storageKind }) => {
     response.status(201).json(item);
   });
 
-  app.get(/^(?!\/api).*/, (_request, response) => {
-    response.sendFile(path.join(rootDirectory, "index.html"));
-  });
+  app.get("/", sendHtmlPage("index.html"));
+  app.get(["/patients", "/patients.html"], sendHtmlPage("patients.html"));
+  app.get(/^(?!\/api|\/src).*/, sendHtmlPage("index.html"));
 
   app.use((error, _request, response, _next) => {
     console.error(error);

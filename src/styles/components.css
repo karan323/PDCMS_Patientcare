@@ -182,6 +182,18 @@
   align-content: start;
 }
 
+.patient-search-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.patient-search-summary strong {
+  font-family: "Fraunces", serif;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+
 .hero-workload {
   padding: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(240, 247, 242, 0.82));
@@ -199,6 +211,10 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .primary-btn {
@@ -549,6 +565,54 @@ textarea {
 .slot-card span {
   display: block;
   margin-top: 8px;
+}
+
+.patient-search-status {
+  margin-top: 16px;
+}
+
+.patient-record {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(240, 247, 242, 0.8));
+}
+
+.patient-record-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.patient-record-head h4,
+.patient-record-head p {
+  margin: 0;
+}
+
+.patient-record-head h4 {
+  font-size: 1.25rem;
+}
+
+.patient-record-head p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.patient-record-grid div {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.patient-record-grid span {
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 .info-table,

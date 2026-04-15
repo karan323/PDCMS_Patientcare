@@ -5,6 +5,10 @@
   padding: 24px;
 }
 
+.page-shell--search {
+  align-items: start;
+}
+
 .sidebar,
 .surface,
 .hero,
@@ -48,6 +52,10 @@
     radial-gradient(circle at 18% 22%, rgba(216, 239, 228, 0.95), transparent 28%),
     radial-gradient(circle at 82% 18%, rgba(233, 221, 178, 0.46), transparent 22%),
     linear-gradient(135deg, rgba(255, 252, 247, 0.92), rgba(240, 247, 242, 0.9));
+}
+
+.hero--search {
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
 }
 
 .hero h2 {
@@ -141,4 +149,27 @@
   gap: 12px;
   padding: 20px 24px;
   margin-bottom: 20px;
+}
+
+.patient-search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.patient-search-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.patient-record-list {
+  display: grid;
+  gap: 16px;
+}
+
+.patient-record-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }

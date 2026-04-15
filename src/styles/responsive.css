@@ -21,7 +21,8 @@
 
   .metrics-grid,
   .availability-grid,
-  .form-grid {
+  .form-grid,
+  .patient-record-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -75,8 +76,15 @@
   .metrics-grid,
   .availability-grid,
   .form-grid,
-  .compact-grid {
+  .compact-grid,
+  .patient-record-grid,
+  .patient-search-form {
     grid-template-columns: 1fr;
+  }
+
+  .patient-search-actions,
+  .patient-record-head {
+    flex-direction: column;
   }
 
   .field-span-2 {
