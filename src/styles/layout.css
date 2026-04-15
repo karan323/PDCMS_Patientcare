@@ -121,6 +121,10 @@
   grid-column: span 2;
 }
 
+.field-span-full {
+  grid-column: 1 / -1;
+}
+
 .availability-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   margin-bottom: 18px;

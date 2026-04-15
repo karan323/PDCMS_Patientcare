@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     productConfig,
     initializePanelNavigation,
     initializeRevealObserver,
+    initializeAdmissions,
     initializeWorkload
   } = window.PDCMS;
 
@@ -14,5 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializePanelNavigation(productConfig);
   initializeRevealObserver(productConfig.revealSelector);
+  initializeAdmissions?.();
   initializeWorkload?.();
 });

@@ -4,6 +4,7 @@
   "description": "Frontend foundation for an inpatient care management product. The current scope covers the staff-side workflow for admission, care tracking, medication, reports, consultant scheduling, follow-up booking, discharge, internal notes, and audit visibility.",
   "main": "src/server/index.js",
   "scripts": {
+    "build:frontend": "node scripts/build-frontend.js",
     "dev": "node src/server/index.js",
     "start": "node src/server/index.js",
     "test": "node --test"

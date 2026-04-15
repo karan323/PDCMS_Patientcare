@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pdcms-patientcare
+    name: pdcms-patientcare-api
     runtime: node
     plan: starter
     buildCommand: npm install
@@ -8,11 +8,11 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "false"
       - key: DATABASE_URL
-        fromDatabase:
-          name: pdcms-patientcare-db
-          property: connectionString
-
-databases:
-  - name: pdcms-patientcare-db
-    plan: starter
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

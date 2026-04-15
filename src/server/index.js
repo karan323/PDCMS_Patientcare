@@ -1,9 +1,9 @@
 const { createApp } = require("./app");
-const { createWorkloadStore } = require("./store/createWorkloadStore");
+const { createDataStores } = require("./store/createDataStores");
 
 const start = async () => {
-  const { kind, store } = await createWorkloadStore();
-  const app = createApp({ workloadStore: store, storageKind: kind });
+  const { kind, workloadStore, admissionStore } = await createDataStores();
+  const app = createApp({ workloadStore, admissionStore, storageKind: kind });
   const port = Number(process.env.PORT || 3000);
 
   app.listen(port, () => {

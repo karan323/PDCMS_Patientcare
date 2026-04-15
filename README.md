@@ -1,23 +1,27 @@
 # PDCMS Inpatient Control Desk
 
-Hospital inpatient operations prototype with a lightweight frontend and a new Node backend for day-by-day workload records.
+Hospital inpatient operations prototype with a static frontend and a Node backend for workload and admission persistence.
 
 ## Stack
 
-- Frontend: static HTML, modular CSS, small browser-side JavaScript
+- Frontend: static HTML, modular CSS, browser-side JavaScript
 - Backend: Node.js + Express
 - Storage:
-  - local development: JSON file at `data/workloads.json`
-  - production: PostgreSQL via `DATABASE_URL`
-- Deployment target: Render web service + Render Postgres
+  - local development: JSON files in `data/`
+  - production: PostgreSQL through `DATABASE_URL`
+- Deployment target:
+  - frontend: Vercel
+  - backend: Render web service
+  - database: Supabase Postgres
 
 ## What Exists Now
 
-- Static inpatient control desk UI
-- Interactive `Today’s workload` checklist
-- Day-by-day workload history through a calendar picker
-- Backend API for loading, creating, and updating workload items
-- Same-origin serving so the frontend and API deploy as one service
+- Staff-facing inpatient workflow UI
+- Day-by-day workload checklist with backend persistence
+- Admission registration backend with generated patient/admission IDs
+- Dashboard summary counts backed by real admission data
+- Same-origin serving so the UI and API deploy as one service
+- API tests covering health, workloads, admissions, and dashboard summary
 
 ## Project Structure
 
@@ -26,6 +30,8 @@ Hospital inpatient operations prototype with a lightweight frontend and a new No
 |-- index.html
 |-- package.json
 |-- render.yaml
+|-- test/
+|   `-- api.test.js
 |-- docs/
 |   `-- architecture.md
 `-- src/
@@ -34,15 +40,19 @@ Hospital inpatient operations prototype with a lightweight frontend and a new No
     |   |-- product/
     |   |   `-- config.js
     |   `-- ui/
+    |       |-- admissions.js
     |       |-- navigation.js
     |       |-- reveal.js
     |       `-- workload.js
     |-- server/
     |   |-- app.js
     |   |-- index.js
+    |   |-- validation.js
     |   `-- store/
-    |       |-- createWorkloadStore.js
+    |       |-- createDataStores.js
+    |       |-- fileAdmissionStore.js
     |       |-- fileWorkloadStore.js
+    |       |-- postgresAdmissionStore.js
     |       `-- postgresWorkloadStore.js
     `-- styles/
         |-- base.css
@@ -74,14 +84,14 @@ npm start
 http://localhost:3000
 ```
 
-The app will create `data/workloads.json` automatically when no `DATABASE_URL` is present.
+When `DATABASE_URL` is not set, the app creates `data/workloads.json` and `data/admissions.json` automatically.
 
 ## Environment
 
-Copy `.env.example` if you want to set variables locally.
+Copy `.env.example` if you want local overrides.
 
 - `PORT`: server port, defaults to `3000`
-- `DATABASE_URL`: PostgreSQL connection string for production or shared environments
+- `DATABASE_URL`: PostgreSQL connection string for shared or production environments
 
 ## API
 
@@ -89,9 +99,13 @@ Copy `.env.example` if you want to set variables locally.
 
 Returns service status and active storage type.
 
+### `GET /api/dashboard/summary`
+
+Returns dashboard counts derived from admissions.
+
 ### `GET /api/workloads?date=YYYY-MM-DD`
 
-Returns the checklist for a single day.
+Returns the checklist for one day.
 
 ### `POST /api/workloads`
 
@@ -99,7 +113,7 @@ Request body:
 
 ```json
 {
-  "date": "2026-04-11",
+  "date": "2026-04-12",
   "text": "Review discharge summary"
 }
 ```
@@ -114,34 +128,53 @@ Request body:
 }
 ```
 
-## Deployment
+### `GET /api/admissions?limit=10`
 
-### Recommended first deployment
+Returns recent admissions ordered newest first.
 
-Render is a good fit here because this project is now one Node service plus one database.
+### `GET /api/admissions/:id`
 
-- Web service: serves `index.html`, static assets, and `/api/*`
-- Database: Render Postgres
-- Blueprint: `render.yaml`
+Returns one admission record.
 
-### Better alternative when the app grows
+### `POST /api/admissions`
 
-If you expect auth, role-based access, attachments, and reporting soon, Supabase is the stronger long-term data layer.
+Minimum request body:
 
-- Better built-in auth and row-level security
-- Better admin tooling for records
-- Easier real-time workflows later
-
-For the current scope, Render + Postgres is still the simplest deployment path.
-
-## Current Workflow Blocker
-
-The local repository is initialized, but GitHub push is blocked because `gh` is not authenticated on this machine yet.
-
-Use either:
-
-```bash
-gh auth login
+```json
+{
+  "fullName": "Taylor Reed",
+  "admissionDate": "2026-04-12",
+  "department": "Cardiology",
+  "status": "Discharge planned"
+}
 ```
 
-or provide the full repository URL and owner so the remote can be configured directly.
+The backend generates `patientId` and `admissionId` automatically when they are omitted.
+
+## Testing
+
+Run:
+
+```bash
+npm test
+```
+
+The test suite covers:
+
+- health endpoint
+- workload create/update flow
+- admission create flow
+- dashboard summary counts
+- admission validation failure
+
+## Deployment
+
+### Vercel + Render + Supabase
+
+This repo is now prepared for:
+
+- Vercel hosting the static frontend from `dist/`
+- Render running the Express API
+- Supabase providing the PostgreSQL database
+
+Use [docs/deployment-vercel-render-supabase.md](docs/deployment-vercel-render-supabase.md) for the exact setup sequence and environment variables.

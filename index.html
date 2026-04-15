@@ -74,7 +74,7 @@
         </div>
         <div class="hero-aside">
           <div class="hero-actions">
-            <button class="primary-btn" type="button">Create new admission</button>
+            <button class="primary-btn" type="button" data-open-registration>Create new admission</button>
             <button class="secondary-btn" type="button">Search patient</button>
           </div>
           <div class="info-panel hero-workload">
@@ -115,8 +115,16 @@
           </div>
         </div>
         <div class="metrics-grid">
-          <article class="metric-card warm"><p>Admitted patients</p><strong>0</strong><span></span></article>
-          <article class="metric-card teal"><p>Discharge patient</p><strong>0</strong><span></span></article>
+          <article class="metric-card warm">
+            <p>Admitted patients</p>
+            <strong data-dashboard-admitted>0</strong>
+            <span data-dashboard-admitted-caption>No admissions yet</span>
+          </article>
+          <article class="metric-card teal">
+            <p>Discharge patient</p>
+            <strong data-dashboard-discharge>0</strong>
+            <span data-dashboard-discharge-caption>No planned discharges</span>
+          </article>
         </div>
       </section>
 
@@ -125,7 +133,7 @@
           <div><p class="section-label">Module 02</p><h3>Patient registration and admission entry</h3></div>
           <p class="section-intro">All core identity, admission, doctor assignment, emergency, and clinical entry points are grouped here so the patient record starts complete.</p>
         </div>
-        <form class="form-grid">
+        <form class="form-grid admission-form" data-admission-form>
           <div class="field"><label for="patient-id">Patient ID</label><input id="patient-id" type="text" value="" placeholder=""></div>
           <div class="field"><label for="admission-id">Admission ID</label><input id="admission-id" type="text" value="" placeholder=""></div>
           <div class="field field-span-2"><label for="patient-name">Full name</label><input id="patient-name" type="text" placeholder=""></div>
@@ -147,6 +155,10 @@
           <div class="field field-span-2"><label for="diagnosis">Diagnosis on admission</label><textarea id="diagnosis" rows="3" placeholder=""></textarea></div>
           <div class="field field-span-2"><label for="allergies">Allergies</label><textarea id="allergies" rows="2" placeholder=""></textarea></div>
           <div class="field"><label for="status">Patient status</label><select id="status"><option value="" selected></option><option>Stable</option><option>Observation</option><option>Critical</option><option>Discharge planned</option></select></div>
+          <div class="form-actions field-span-full">
+            <p class="form-status" data-admission-status aria-live="polite"></p>
+            <button class="primary-btn" type="submit">Save admission</button>
+          </div>
         </form>
       </section>
 
@@ -351,9 +363,11 @@
       </section>
     </main>
   </div>
+  <script src="src/scripts/product/runtime-config.js"></script>
   <script src="src/scripts/product/config.js"></script>
   <script src="src/scripts/ui/navigation.js"></script>
   <script src="src/scripts/ui/reveal.js"></script>
+  <script src="src/scripts/ui/admissions.js"></script>
   <script src="src/scripts/ui/workload.js"></script>
   <script src="src/scripts/main.js"></script>
 </body>

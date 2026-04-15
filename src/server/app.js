@@ -1,19 +1,52 @@
 const express = require("express");
 const path = require("node:path");
+const { isValidDate, validateAdmissionPayload } = require("./validation");
 
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const parseLimit = value => {
+  const parsed = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return 10;
+  }
 
-const isValidDate = value => DATE_PATTERN.test(value);
+  return Math.min(parsed, 50);
+};
 
-const createApp = ({ workloadStore, storageKind }) => {
+const createApp = ({ workloadStore, admissionStore, storageKind }) => {
   const app = express();
   const rootDirectory = process.cwd();
+  const sourceDirectory = path.join(rootDirectory, "src");
+  const allowedOrigins = String(process.env.CORS_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
 
-  app.use(express.json());
-  app.use(express.static(rootDirectory));
+  app.use(express.json({ limit: "250kb" }));
+  app.use("/src", express.static(sourceDirectory));
+  app.use((request, response, next) => {
+    const origin = request.headers.origin;
+
+    if (origin && allowedOrigins.includes(origin)) {
+      response.setHeader("Access-Control-Allow-Origin", origin);
+      response.setHeader("Vary", "Origin");
+      response.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,OPTIONS");
+      response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    if (request.method === "OPTIONS") {
+      response.sendStatus(origin && allowedOrigins.includes(origin) ? 204 : 403);
+      return;
+    }
+
+    next();
+  });
 
   app.get("/api/health", (_request, response) => {
     response.json({ status: "ok", storage: storageKind });
+  });
+
+  app.get("/api/dashboard/summary", async (_request, response) => {
+    const summary = await admissionStore.getSummary();
+    response.json(summary);
   });
 
   app.get("/api/workloads", async (request, response) => {
@@ -59,6 +92,32 @@ const createApp = ({ workloadStore, storageKind }) => {
     }
 
     response.json(item);
+  });
+
+  app.get("/api/admissions", async (request, response) => {
+    const items = await admissionStore.listRecent(parseLimit(request.query.limit));
+    response.json({ items });
+  });
+
+  app.get("/api/admissions/:id", async (request, response) => {
+    const item = await admissionStore.getById(request.params.id);
+    if (!item) {
+      response.status(404).json({ error: "Admission not found." });
+      return;
+    }
+
+    response.json(item);
+  });
+
+  app.post("/api/admissions", async (request, response) => {
+    const result = validateAdmissionPayload(request.body || {});
+    if (result.errors) {
+      response.status(400).json({ error: result.errors.join(" ") });
+      return;
+    }
+
+    const item = await admissionStore.create(result.value);
+    response.status(201).json(item);
   });
 
   app.get(/^(?!\/api).*/, (_request, response) => {

@@ -470,6 +470,29 @@ textarea {
   gap: 8px;
 }
 
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.form-status {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.form-status[data-tone="error"] {
+  color: #b64c4c;
+}
+
+.form-status[data-tone="success"] {
+  color: var(--mint-strong);
+}
+
 .field label,
 .checkbox-line {
   font-weight: 700;

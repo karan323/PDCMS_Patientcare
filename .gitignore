@@ -6,4 +6,5 @@ coverage/
 .idea/
 .vscode/
 data/workloads.json
+data/admissions.json
 .env

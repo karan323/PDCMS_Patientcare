@@ -1,9 +1,10 @@
 window.PDCMS = window.PDCMS || {};
 
 window.PDCMS.initializeWorkload = () => {
+  const apiUrl = window.PDCMS.productConfig?.apiUrl;
   const panel = document.querySelector(".hero-workload");
 
-  if (!panel) {
+  if (!panel || typeof apiUrl !== "function") {
     return;
   }
 
@@ -126,7 +127,7 @@ window.PDCMS.initializeWorkload = () => {
     setStatus("Loading tasks...");
 
     try {
-      const payload = await requestJson(`/api/workloads?date=${encodeURIComponent(dateKey)}`);
+      const payload = await requestJson(apiUrl(`/api/workloads?date=${encodeURIComponent(dateKey)}`));
       activeDate = payload.date;
       dateInput.value = payload.date;
       updateDateLabel(payload.date);
@@ -145,7 +146,7 @@ window.PDCMS.initializeWorkload = () => {
     setStatus("Saving task...");
 
     try {
-      await requestJson("/api/workloads", {
+      await requestJson(apiUrl("/api/workloads"), {
         method: "POST",
         body: JSON.stringify({
           date: activeDate,
@@ -166,7 +167,7 @@ window.PDCMS.initializeWorkload = () => {
     setStatus("Saving update...");
 
     try {
-      await requestJson(`/api/workloads/${encodeURIComponent(taskId)}`, {
+      await requestJson(apiUrl(`/api/workloads/${encodeURIComponent(taskId)}`), {
         method: "PATCH",
         body: JSON.stringify({ done })
       });
