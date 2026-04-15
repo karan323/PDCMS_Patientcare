@@ -88,24 +88,10 @@ window.PDCMS.initializePatientSearch = () => {
     grid.className = "patient-record-grid";
 
     const fieldPairs = [
-      ["Admission date", record.admissionDate],
-      ["Admission time", record.admissionTime],
-      ["Department", record.department],
+      ["Patient ID", record.patientId],
+      ["Date of entry", record.admissionDate],
       ["Doctor", record.doctor],
-      ["Age", record.age],
-      ["Gender", record.gender],
-      ["Date of birth", record.dateOfBirth],
-      ["Mobile number", record.mobileNumber],
-      ["Emergency contact", record.emergencyContact],
-      ["Blood group", record.bloodGroup],
-      ["Insurance / profile", record.insuranceProfileType],
-      ["Ward", record.ward],
-      ["Room", record.room],
-      ["Bed number", record.bedNumber],
-      ["Address", record.address],
-      ["Diagnosis", record.diagnosis],
-      ["Allergies", record.allergies],
-      ["Created at", record.createdAt]
+      ["Department", record.department]
     ];
 
     grid.replaceChildren(...fieldPairs.map(([label, value]) => createField(label, value)));
