@@ -571,6 +571,34 @@ textarea {
   margin-top: 16px;
 }
 
+.patient-search-filter-panel[hidden] {
+  display: none;
+}
+
+.patient-search-filter-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.patient-search-filter-head h4,
+.patient-search-filter-head p {
+  margin: 0;
+}
+
+.patient-search-filter-head h4 {
+  margin-top: 6px;
+  font-size: 1.05rem;
+}
+
+.patient-search-filter-head p {
+  max-width: 40ch;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 .patient-record {
   display: grid;
   gap: 18px;

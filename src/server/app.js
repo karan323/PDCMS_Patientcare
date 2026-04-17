@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("node:path");
-const { isValidDate, validateAdmissionPayload } = require("./validation");
+const { isValidDate, normalizeAdmissionSearchFilters, validateAdmissionPayload } = require("./validation");
 
 const parseLimit = value => {
   const parsed = Number.parseInt(String(value ?? ""), 10);
@@ -103,11 +103,18 @@ const createApp = ({ workloadStore, admissionStore, storageKind }) => {
   });
 
   app.get("/api/admissions", async (request, response) => {
-    const query = typeof request.query.q === "string" ? request.query.q.trim() : "";
+    const result = normalizeAdmissionSearchFilters(request.query);
+    if (result.errors) {
+      response.status(400).json({ error: result.errors.join(" ") });
+      return;
+    }
+
+    const filters = result.value;
     const shouldLoadAll = isTruthy(request.query.all);
+    const hasSearchCriteria = Object.values(filters).some(Boolean);
     const items = await admissionStore.list({
-      query,
-      limit: shouldLoadAll || query ? null : parseLimit(request.query.limit)
+      ...filters,
+      limit: shouldLoadAll || hasSearchCriteria ? null : parseLimit(request.query.limit)
     });
 
     response.json({ items });

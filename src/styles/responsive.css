@@ -22,6 +22,7 @@
   .metrics-grid,
   .availability-grid,
   .form-grid,
+  .patient-search-filter-grid,
   .patient-record-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -34,6 +35,7 @@
   .two-column,
   .subsection-grid,
   .check-grid,
+  .patient-search-filter-head,
   .footer-actions {
     grid-template-columns: 1fr;
     flex-direction: column;
@@ -77,6 +79,7 @@
   .availability-grid,
   .form-grid,
   .compact-grid,
+  .patient-search-filter-grid,
   .patient-record-grid,
   .patient-search-form {
     grid-template-columns: 1fr;

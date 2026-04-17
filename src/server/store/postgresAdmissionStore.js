@@ -49,8 +49,23 @@ class PostgresAdmissionStore {
     return this.list({ limit });
   }
 
-  async list({ query = "", limit = null } = {}) {
+  async list({
+    query = "",
+    patientId = null,
+    fullName = null,
+    doctor = null,
+    entryDate = null,
+    entryDateFrom = null,
+    entryDateTo = null,
+    limit = null
+  } = {}) {
     const normalizedQuery = String(query || "").trim();
+    const normalizedPatientId = String(patientId || "").trim();
+    const normalizedFullName = String(fullName || "").trim();
+    const normalizedDoctor = String(doctor || "").trim();
+    const normalizedEntryDate = String(entryDate || "").trim();
+    const normalizedEntryDateFrom = String(entryDateFrom || "").trim();
+    const normalizedEntryDateTo = String(entryDateTo || "").trim();
     const parameters = [];
     const conditions = [];
 
@@ -59,18 +74,37 @@ class PostgresAdmissionStore {
       conditions.push(`
         (
           patient_id ILIKE $${parameters.length}
-          OR admission_id ILIKE $${parameters.length}
           OR full_name ILIKE $${parameters.length}
-          OR COALESCE(mobile_number, '') ILIKE $${parameters.length}
-          OR department ILIKE $${parameters.length}
-          OR COALESCE(doctor, '') ILIKE $${parameters.length}
-          OR status ILIKE $${parameters.length}
-          OR COALESCE(ward, '') ILIKE $${parameters.length}
-          OR COALESCE(room, '') ILIKE $${parameters.length}
-          OR COALESCE(bed_number, '') ILIKE $${parameters.length}
-          OR COALESCE(diagnosis, '') ILIKE $${parameters.length}
         )
       `);
+    }
+
+    if (normalizedPatientId) {
+      parameters.push(`%${normalizedPatientId}%`);
+      conditions.push(`patient_id ILIKE $${parameters.length}`);
+    }
+
+    if (normalizedFullName) {
+      parameters.push(`%${normalizedFullName}%`);
+      conditions.push(`full_name ILIKE $${parameters.length}`);
+    }
+
+    if (normalizedDoctor) {
+      parameters.push(`%${normalizedDoctor}%`);
+      conditions.push(`COALESCE(doctor, '') ILIKE $${parameters.length}`);
+    }
+
+    if (normalizedEntryDate) {
+      parameters.push(normalizedEntryDate);
+      conditions.push(`admission_date = $${parameters.length}::date`);
+    }
+
+    if (normalizedEntryDateFrom && normalizedEntryDateTo) {
+      parameters.push(normalizedEntryDateFrom);
+      const fromIndex = parameters.length;
+      parameters.push(normalizedEntryDateTo);
+      const toIndex = parameters.length;
+      conditions.push(`admission_date BETWEEN $${fromIndex}::date AND $${toIndex}::date`);
     }
 
     let limitClause = "";

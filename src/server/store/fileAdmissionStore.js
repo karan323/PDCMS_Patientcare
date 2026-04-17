@@ -22,11 +22,28 @@ class FileAdmissionStore {
     return this.list({ limit });
   }
 
-  async list({ query = "", limit = null } = {}) {
+  async list({
+    query = "",
+    patientId = null,
+    fullName = null,
+    doctor = null,
+    entryDate = null,
+    entryDateFrom = null,
+    entryDateTo = null,
+    limit = null
+  } = {}) {
     const data = await this.#read();
-    const normalizedQuery = String(query || "").trim().toLowerCase();
+    const filters = {
+      query: String(query || "").trim().toLowerCase(),
+      patientId: String(patientId || "").trim().toLowerCase(),
+      fullName: String(fullName || "").trim().toLowerCase(),
+      doctor: String(doctor || "").trim().toLowerCase(),
+      entryDate: String(entryDate || "").trim(),
+      entryDateFrom: String(entryDateFrom || "").trim(),
+      entryDateTo: String(entryDateTo || "").trim()
+    };
     const items = [...data.admissions]
-      .filter(item => this.#matchesQuery(item, normalizedQuery))
+      .filter(item => this.#matchesFilters(item, filters))
       .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
 
     if (Number.isInteger(limit) && limit > 0) {
@@ -69,26 +86,39 @@ class FileAdmissionStore {
     return JSON.parse(raw);
   }
 
-  #matchesQuery(item, query) {
-    if (!query) {
-      return true;
+  #matchesFilters(item, filters) {
+    const patientId = String(item.patientId || "").toLowerCase();
+    const fullName = String(item.fullName || "").toLowerCase();
+    const doctor = String(item.doctor || "").toLowerCase();
+    const admissionDate = String(item.admissionDate || "").trim();
+
+    if (filters.query && ![patientId, fullName].some(value => value.includes(filters.query))) {
+      return false;
     }
 
-    const searchableValues = [
-      item.patientId,
-      item.admissionId,
-      item.fullName,
-      item.mobileNumber,
-      item.department,
-      item.doctor,
-      item.status,
-      item.ward,
-      item.room,
-      item.bedNumber,
-      item.diagnosis
-    ];
+    if (filters.patientId && !patientId.includes(filters.patientId)) {
+      return false;
+    }
 
-    return searchableValues.some(value => String(value || "").toLowerCase().includes(query));
+    if (filters.fullName && !fullName.includes(filters.fullName)) {
+      return false;
+    }
+
+    if (filters.doctor && !doctor.includes(filters.doctor)) {
+      return false;
+    }
+
+    if (filters.entryDate && admissionDate !== filters.entryDate) {
+      return false;
+    }
+
+    if (filters.entryDateFrom && filters.entryDateTo) {
+      if (admissionDate < filters.entryDateFrom || admissionDate > filters.entryDateTo) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   async #write(data) {

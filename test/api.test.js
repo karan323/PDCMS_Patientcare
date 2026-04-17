@@ -149,14 +149,15 @@ test("admission validation rejects incomplete payloads", async () => {
   }
 });
 
-test("admission list supports loading all records and server-side search", async () => {
+test("admission list supports loading all records and structured server-side filters", async () => {
   const context = await createTestServer();
 
   try {
-    await fetch(`${context.baseUrl}/api/admissions`, {
+    const firstCreateResponse = await fetch(`${context.baseUrl}/api/admissions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        patientId: "AB1234",
         fullName: "Taylor Reed",
         admissionDate: "2026-04-12",
         department: "Cardiology",
@@ -165,10 +166,11 @@ test("admission list supports loading all records and server-side search", async
       })
     });
 
-    await fetch(`${context.baseUrl}/api/admissions`, {
+    const secondCreateResponse = await fetch(`${context.baseUrl}/api/admissions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        patientId: "CD5678",
         fullName: "Morgan Lee",
         admissionDate: "2026-04-13",
         department: "Neurology",
@@ -177,18 +179,70 @@ test("admission list supports loading all records and server-side search", async
       })
     });
 
+    assert.equal(firstCreateResponse.status, 201);
+    assert.equal(secondCreateResponse.status, 201);
+
     const allResponse = await fetch(`${context.baseUrl}/api/admissions?all=true`);
     const allPayload = await allResponse.json();
 
     assert.equal(allResponse.status, 200);
     assert.equal(allPayload.items.length, 2);
 
-    const searchResponse = await fetch(`${context.baseUrl}/api/admissions?q=neurology`);
-    const searchPayload = await searchResponse.json();
+    const defaultSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=morgan`);
+    const defaultSearchPayload = await defaultSearchResponse.json();
 
-    assert.equal(searchResponse.status, 200);
-    assert.equal(searchPayload.items.length, 1);
-    assert.equal(searchPayload.items[0].fullName, "Morgan Lee");
+    assert.equal(defaultSearchResponse.status, 200);
+    assert.equal(defaultSearchPayload.items.length, 1);
+    assert.equal(defaultSearchPayload.items[0].fullName, "Morgan Lee");
+
+    const patientIdFilterResponse = await fetch(`${context.baseUrl}/api/admissions?patientId=AB1234`);
+    const patientIdFilterPayload = await patientIdFilterResponse.json();
+
+    assert.equal(patientIdFilterResponse.status, 200);
+    assert.equal(patientIdFilterPayload.items.length, 1);
+    assert.equal(patientIdFilterPayload.items[0].fullName, "Taylor Reed");
+
+    const doctorFilterResponse = await fetch(`${context.baseUrl}/api/admissions?doctor=nair`);
+    const doctorFilterPayload = await doctorFilterResponse.json();
+
+    assert.equal(doctorFilterResponse.status, 200);
+    assert.equal(doctorFilterPayload.items.length, 1);
+    assert.equal(doctorFilterPayload.items[0].fullName, "Morgan Lee");
+
+    const singleDateFilterResponse = await fetch(`${context.baseUrl}/api/admissions?entryDate=2026-04-12`);
+    const singleDateFilterPayload = await singleDateFilterResponse.json();
+
+    assert.equal(singleDateFilterResponse.status, 200);
+    assert.equal(singleDateFilterPayload.items.length, 1);
+    assert.equal(singleDateFilterPayload.items[0].fullName, "Taylor Reed");
+
+    const rangeFilterResponse = await fetch(
+      `${context.baseUrl}/api/admissions?entryDateFrom=2026-04-12&entryDateTo=2026-04-13`
+    );
+    const rangeFilterPayload = await rangeFilterResponse.json();
+
+    assert.equal(rangeFilterResponse.status, 200);
+    assert.equal(rangeFilterPayload.items.length, 2);
+
+    const unsupportedDefaultSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=neurology`);
+    const unsupportedDefaultSearchPayload = await unsupportedDefaultSearchResponse.json();
+
+    assert.equal(unsupportedDefaultSearchResponse.status, 200);
+    assert.equal(unsupportedDefaultSearchPayload.items.length, 0);
+  } finally {
+    await context.close();
+  }
+});
+
+test("admission list rejects invalid entry date combinations", async () => {
+  const context = await createTestServer();
+
+  try {
+    const response = await fetch(`${context.baseUrl}/api/admissions?entryDate=2026-04-12&entryDateTo=2026-04-13`);
+    const payload = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.match(payload.error, /Use either a single entry date or a date range/);
   } finally {
     await context.close();
   }

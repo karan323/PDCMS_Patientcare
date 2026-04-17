@@ -5,6 +5,18 @@ window.PDCMS.initializePatientSearch = () => {
   const form = document.querySelector("[data-patient-search-form]");
   const input = document.querySelector("[data-patient-search-input]");
   const resetButton = document.querySelector("[data-patient-search-reset]");
+  const filterToggleButton = document.querySelector("[data-patient-search-filter-toggle]");
+  const filtersPanel = document.querySelector("[data-patient-search-filters]");
+  const patientIdFilterInput = document.querySelector("[data-patient-filter-patient-id]");
+  const fullNameFilterInput = document.querySelector("[data-patient-filter-full-name]");
+  const doctorFilterInput = document.querySelector("[data-patient-filter-doctor]");
+  const dateModeSelect = document.querySelector("[data-patient-filter-date-mode]");
+  const singleDateField = document.querySelector("[data-patient-filter-single-field]");
+  const rangeStartField = document.querySelector("[data-patient-filter-range-start-field]");
+  const rangeEndField = document.querySelector("[data-patient-filter-range-end-field]");
+  const entryDateInput = document.querySelector("[data-patient-filter-entry-date]");
+  const entryDateFromInput = document.querySelector("[data-patient-filter-entry-date-from]");
+  const entryDateToInput = document.querySelector("[data-patient-filter-entry-date-to]");
   const status = document.querySelector("[data-patient-search-status]");
   const list = document.querySelector("[data-patient-record-list]");
   const empty = document.querySelector("[data-patient-record-empty]");
@@ -16,6 +28,18 @@ window.PDCMS.initializePatientSearch = () => {
     !form ||
     !input ||
     !resetButton ||
+    !filterToggleButton ||
+    !filtersPanel ||
+    !patientIdFilterInput ||
+    !fullNameFilterInput ||
+    !doctorFilterInput ||
+    !dateModeSelect ||
+    !singleDateField ||
+    !rangeStartField ||
+    !rangeEndField ||
+    !entryDateInput ||
+    !entryDateFromInput ||
+    !entryDateToInput ||
     !status ||
     !list ||
     !empty ||
@@ -100,59 +124,176 @@ window.PDCMS.initializePatientSearch = () => {
     return article;
   };
 
-  const renderRecords = (records, query) => {
+  const renderRecords = (records, description) => {
     list.replaceChildren(...records.map(renderRecord));
     empty.hidden = records.length > 0;
     list.hidden = records.length === 0;
     count.textContent = `${records.length} record${records.length === 1 ? "" : "s"}`;
-    caption.textContent = query
-      ? `Showing matches for "${query}".`
-      : "Showing every patient admission saved in the backend.";
+    caption.textContent = description;
   };
 
-  const loadRecords = async query => {
-    setStatus(query ? "Searching patients..." : "Loading all patients...");
+  const setFiltersOpen = isOpen => {
+    filtersPanel.hidden = !isOpen;
+    filterToggleButton.textContent = isOpen ? "Hide filters" : "Advanced filters";
+    filterToggleButton.setAttribute("aria-expanded", String(isOpen));
+  };
 
-    const params = new URLSearchParams();
-    if (query) {
-      params.set("q", query);
-    } else {
-      params.set("all", "true");
+  const syncDateFields = () => {
+    const mode = dateModeSelect.value;
+    singleDateField.hidden = mode !== "single";
+    rangeStartField.hidden = mode !== "range";
+    rangeEndField.hidden = mode !== "range";
+
+    if (mode !== "single") {
+      entryDateInput.value = "";
     }
 
-    const payload = await requestJson(apiUrl(`/api/admissions?${params.toString()}`));
-    renderRecords(payload.items || [], query);
-    setStatus(query ? "Search complete." : "All patients loaded.", "success");
+    if (mode !== "range") {
+      entryDateFromInput.value = "";
+      entryDateToInput.value = "";
+    }
+  };
+
+  const hasAdvancedFilterValue = () =>
+    Boolean(
+      patientIdFilterInput.value.trim() ||
+        fullNameFilterInput.value.trim() ||
+        doctorFilterInput.value.trim() ||
+        dateModeSelect.value ||
+        entryDateInput.value ||
+        entryDateFromInput.value ||
+        entryDateToInput.value
+    );
+
+  const getDefaultSearchRequest = () => ({
+    queryString: "all=true",
+    description: "Showing every patient admission saved in the backend.",
+    isSearching: false
+  });
+
+  const getSearchRequest = () => {
+    const searchQuery = input.value.trim();
+    const patientId = patientIdFilterInput.value.trim();
+    const fullName = fullNameFilterInput.value.trim();
+    const doctor = doctorFilterInput.value.trim();
+    const dateMode = dateModeSelect.value;
+    const entryDate = entryDateInput.value;
+    const entryDateFrom = entryDateFromInput.value;
+    const entryDateTo = entryDateToInput.value;
+    const params = new URLSearchParams();
+    const descriptions = [];
+
+    if (searchQuery) {
+      params.set("q", searchQuery);
+      descriptions.push(`patient ID or name matching "${searchQuery}"`);
+    }
+
+    if (patientId) {
+      params.set("patientId", patientId);
+      descriptions.push(`patient ID matching "${patientId}"`);
+    }
+
+    if (fullName) {
+      params.set("fullName", fullName);
+      descriptions.push(`patient name matching "${fullName}"`);
+    }
+
+    if (doctor) {
+      params.set("doctor", doctor);
+      descriptions.push(`doctor matching "${doctor}"`);
+    }
+
+    if (dateMode === "single") {
+      if (!entryDate) {
+        throw new Error("Select a date of entry to use the single date filter.");
+      }
+
+      params.set("entryDate", entryDate);
+      descriptions.push(`date of entry on ${entryDate}`);
+    }
+
+    if (dateMode === "range") {
+      if (!entryDateFrom || !entryDateTo) {
+        throw new Error("Select both date values to use the date range filter.");
+      }
+
+      if (entryDateFrom > entryDateTo) {
+        throw new Error("Date of entry range start must be on or before the end date.");
+      }
+
+      params.set("entryDateFrom", entryDateFrom);
+      params.set("entryDateTo", entryDateTo);
+      descriptions.push(`date of entry between ${entryDateFrom} and ${entryDateTo}`);
+    }
+
+    if (!params.toString()) {
+      return getDefaultSearchRequest();
+    }
+
+    return {
+      queryString: params.toString(),
+      description: `Showing results for ${descriptions.join(", ")}.`,
+      isSearching: true
+    };
+  };
+
+  const handleLoadError = error => {
+    list.replaceChildren();
+    list.hidden = true;
+    empty.hidden = false;
+    count.textContent = "0 records";
+    caption.textContent = "Unable to load records from the backend.";
+    setStatus(error.message, "error");
+  };
+
+  const loadRecords = async searchRequest => {
+    setStatus(searchRequest.isSearching ? "Searching patients..." : "Loading all patients...");
+
+    const payload = await requestJson(apiUrl(`/api/admissions?${searchRequest.queryString}`));
+    renderRecords(payload.items || [], searchRequest.description);
+    setStatus(searchRequest.isSearching ? "Search complete." : "All patients loaded.", "success");
   };
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    const query = input.value.trim();
 
-    void loadRecords(query).catch(error => {
-      list.replaceChildren();
-      list.hidden = true;
-      empty.hidden = false;
-      count.textContent = "0 records";
-      caption.textContent = "Unable to load records from the backend.";
+    let searchRequest;
+    try {
+      searchRequest = getSearchRequest();
+    } catch (error) {
       setStatus(error.message, "error");
-    });
+      if (hasAdvancedFilterValue()) {
+        setFiltersOpen(true);
+      }
+      return;
+    }
+
+    void loadRecords(searchRequest).catch(handleLoadError);
+  });
+
+  filterToggleButton.addEventListener("click", () => {
+    setFiltersOpen(filtersPanel.hidden);
+  });
+
+  dateModeSelect.addEventListener("change", () => {
+    syncDateFields();
+    if (dateModeSelect.value) {
+      setFiltersOpen(true);
+    }
   });
 
   resetButton.addEventListener("click", () => {
-    input.value = "";
+    form.reset();
+    syncDateFields();
+    setFiltersOpen(false);
 
-    void loadRecords("").catch(error => {
-      setStatus(error.message, "error");
-    });
+    void loadRecords(getDefaultSearchRequest()).catch(handleLoadError);
   });
 
-  void loadRecords("").catch(error => {
-    count.textContent = "0 records";
-    caption.textContent = "Unable to load records from the backend.";
-    empty.hidden = false;
-    setStatus(error.message, "error");
-  });
+  syncDateFields();
+  setFiltersOpen(false);
+
+  void loadRecords(getDefaultSearchRequest()).catch(handleLoadError);
 };
 
 document.addEventListener("DOMContentLoaded", () => {

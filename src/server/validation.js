@@ -122,7 +122,51 @@ const validateAdmissionPayload = payload => {
   };
 };
 
+const normalizeAdmissionSearchFilters = query => {
+  const errors = [];
+  const filters = {
+    query: cleanString(query?.q),
+    patientId: optionalString(query?.patientId),
+    fullName: optionalString(query?.fullName),
+    doctor: optionalString(query?.doctor),
+    entryDate: optionalString(query?.entryDate),
+    entryDateFrom: optionalString(query?.entryDateFrom),
+    entryDateTo: optionalString(query?.entryDateTo)
+  };
+
+  if (filters.entryDate && !isValidDate(filters.entryDate)) {
+    errors.push("Entry date must use YYYY-MM-DD format.");
+  }
+
+  if (filters.entryDateFrom && !isValidDate(filters.entryDateFrom)) {
+    errors.push("Entry date start must use YYYY-MM-DD format.");
+  }
+
+  if (filters.entryDateTo && !isValidDate(filters.entryDateTo)) {
+    errors.push("Entry date end must use YYYY-MM-DD format.");
+  }
+
+  if (filters.entryDate && (filters.entryDateFrom || filters.entryDateTo)) {
+    errors.push("Use either a single entry date or a date range.");
+  }
+
+  if ((filters.entryDateFrom || filters.entryDateTo) && !(filters.entryDateFrom && filters.entryDateTo)) {
+    errors.push("Both entry date range values are required.");
+  }
+
+  if (filters.entryDateFrom && filters.entryDateTo && filters.entryDateFrom > filters.entryDateTo) {
+    errors.push("Entry date range start must be on or before the end date.");
+  }
+
+  if (errors.length > 0) {
+    return { errors };
+  }
+
+  return { value: filters };
+};
+
 module.exports = {
   isValidDate,
+  normalizeAdmissionSearchFilters,
   validateAdmissionPayload
 };
