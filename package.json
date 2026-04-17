@@ -6,6 +6,7 @@
   "scripts": {
     "build:frontend": "node scripts/build-frontend.js",
     "dev": "node src/server/index.js",
+    "seed:admissions": "node scripts/seed-admissions.js",
     "start": "node src/server/index.js",
     "test": "node --test"
   },

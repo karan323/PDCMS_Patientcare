@@ -78,6 +78,14 @@ npm install
 npm start
 ```
 
+To seed fake patient admissions for the patient search page:
+
+```bash
+npm run seed:admissions
+```
+
+The seeder tops the active backend up to 120 admissions by default. Use `npm run seed:admissions -- --count=100` to target a different minimum.
+
 3. Open:
 
 ```text
