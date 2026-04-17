@@ -42,8 +42,9 @@ const parseOptionalAge = value => {
   return { value: parsed };
 };
 
-const validateAdmissionPayload = payload => {
+const validateAdmissionPayload = (payload, options = {}) => {
   const errors = [];
+  const existingIdentifiers = options.existingIdentifiers || null;
 
   const fullName = cleanString(payload?.fullName);
   const admissionDate = cleanString(payload?.admissionDate);
@@ -97,8 +98,8 @@ const validateAdmissionPayload = payload => {
 
   return {
     value: {
-      patientId: optionalString(payload?.patientId) || generateCode("PT"),
-      admissionId: optionalString(payload?.admissionId) || generateCode("ADM"),
+      patientId: optionalString(payload?.patientId) || existingIdentifiers?.patientId || generateCode("PT"),
+      admissionId: optionalString(payload?.admissionId) || existingIdentifiers?.admissionId || generateCode("ADM"),
       fullName,
       age: ageResult.value,
       gender,
@@ -124,8 +125,11 @@ const validateAdmissionPayload = payload => {
 
 const normalizeAdmissionSearchFilters = query => {
   const errors = [];
+  const normalizedQuery = cleanString(query?.q);
+  const broadQuery = normalizedQuery.startsWith("*");
   const filters = {
-    query: cleanString(query?.q),
+    query: broadQuery ? cleanString(normalizedQuery.slice(1)) : normalizedQuery,
+    queryMode: broadQuery ? "broad" : "default",
     patientId: optionalString(query?.patientId),
     fullName: optionalString(query?.fullName),
     doctor: optionalString(query?.doctor),

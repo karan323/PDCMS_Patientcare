@@ -24,6 +24,7 @@
         <p class="section-label">Search scope</p>
         <ul class="sidebar-list">
           <li>Default search by patient ID or patient name</li>
+          <li>Start with * to search across all patient fields</li>
           <li>Advanced filter for patient ID</li>
           <li>Advanced filter for patient name or doctor</li>
           <li>Date of entry as a single date or date range</li>
@@ -41,7 +42,7 @@
           </div>
           <h2>Find patients quickly without leaving the inpatient workflow.</h2>
           <p class="hero-copy">
-            Search by patient ID or name by default, then expand advanced filters when staff need doctor-specific or date-of-entry matching.
+            Search by patient ID or name by default, use * at the start for a broad patient-wide lookup, then expand advanced filters for doctor or date-of-entry matching.
           </p>
         </div>
         <div class="hero-aside">
@@ -59,7 +60,7 @@
             <p class="section-label">Search</p>
             <h3>Patient directory</h3>
           </div>
-          <p class="section-intro">Use the default search for patient ID or name. Open advanced filters for doctor and date-of-entry search.</p>
+          <p class="section-intro">Use the default search for patient ID or name. Start with * for a broad record search, or open advanced filters for doctor and date-of-entry search.</p>
         </div>
 
         <form class="patient-search-form" data-patient-search-form>
@@ -68,7 +69,7 @@
             <input
               id="patient-search-input"
               type="search"
-              placeholder="Search by patient ID or patient name"
+              placeholder="Search by patient ID or patient name, or use *term for a broad search"
               data-patient-search-input
             >
           </div>
@@ -138,6 +139,47 @@
         </form>
 
         <p class="form-status patient-search-status" data-patient-search-status aria-live="polite"></p>
+      </section>
+
+      <section class="surface patient-edit-panel" data-patient-edit-panel hidden>
+        <div class="section-head">
+          <div>
+            <p class="section-label">Edit admission</p>
+            <h3 data-patient-edit-title>Edit patient record</h3>
+          </div>
+          <p class="section-intro">Update any saved admission field and save the changes back to the backend.</p>
+        </div>
+
+        <form class="form-grid admission-form" data-patient-edit-form>
+          <div class="field"><label for="edit-patient-id">Patient ID</label><input id="edit-patient-id" type="text" data-patient-edit-field="patientId"></div>
+          <div class="field"><label for="edit-admission-id">Admission ID</label><input id="edit-admission-id" type="text" data-patient-edit-field="admissionId"></div>
+          <div class="field field-span-2"><label for="edit-patient-name">Full name</label><input id="edit-patient-name" type="text" data-patient-edit-field="fullName"></div>
+          <div class="field"><label for="edit-age">Age</label><input id="edit-age" type="number" data-patient-edit-field="age"></div>
+          <div class="field"><label for="edit-gender">Gender</label><select id="edit-gender" data-patient-edit-field="gender"><option value="" selected></option><option>Female</option><option>Male</option><option>Other</option></select></div>
+          <div class="field"><label for="edit-dob">Date of birth</label><input id="edit-dob" type="date" data-patient-edit-field="dateOfBirth"></div>
+          <div class="field"><label for="edit-mobile">Mobile number</label><input id="edit-mobile" type="tel" data-patient-edit-field="mobileNumber"></div>
+          <div class="field field-span-2"><label for="edit-address">Address</label><textarea id="edit-address" rows="3" data-patient-edit-field="address"></textarea></div>
+          <div class="field"><label for="edit-emergency-contact">Emergency contact</label><input id="edit-emergency-contact" type="text" data-patient-edit-field="emergencyContact"></div>
+          <div class="field"><label for="edit-blood-group">Blood group</label><select id="edit-blood-group" data-patient-edit-field="bloodGroup"><option value="" selected></option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+          <div class="field"><label for="edit-insurance">Insurance / profile type</label><input id="edit-insurance" type="text" data-patient-edit-field="insuranceProfileType"></div>
+          <div class="field"><label for="edit-admission-date">Admission date</label><input id="edit-admission-date" type="date" data-patient-edit-field="admissionDate"></div>
+          <div class="field"><label for="edit-admission-time">Admission time</label><input id="edit-admission-time" type="time" data-patient-edit-field="admissionTime"></div>
+          <div class="field"><label for="edit-department">Department</label><select id="edit-department" data-patient-edit-field="department"><option value="" selected></option><option>Inpatient medicine</option><option>Cardiology</option><option>Neurology</option><option>Orthopedics</option><option>Pediatrics</option></select></div>
+          <div class="field"><label for="edit-ward">Ward</label><input id="edit-ward" type="text" data-patient-edit-field="ward"></div>
+          <div class="field"><label for="edit-room">Room</label><input id="edit-room" type="text" data-patient-edit-field="room"></div>
+          <div class="field"><label for="edit-bed-number">Bed number</label><input id="edit-bed-number" type="text" data-patient-edit-field="bedNumber"></div>
+          <div class="field"><label for="edit-doctor">Admitting doctor</label><input id="edit-doctor" type="text" data-patient-edit-field="doctor"></div>
+          <div class="field field-span-2"><label for="edit-diagnosis">Diagnosis on admission</label><textarea id="edit-diagnosis" rows="3" data-patient-edit-field="diagnosis"></textarea></div>
+          <div class="field field-span-2"><label for="edit-allergies">Allergies</label><textarea id="edit-allergies" rows="2" data-patient-edit-field="allergies"></textarea></div>
+          <div class="field"><label for="edit-status">Patient status</label><select id="edit-status" data-patient-edit-field="status"><option value="" selected></option><option>Stable</option><option>Observation</option><option>Critical</option><option>Discharge planned</option></select></div>
+          <div class="form-actions field-span-full">
+            <p class="form-status" data-patient-edit-status aria-live="polite"></p>
+            <div class="patient-edit-actions">
+              <button class="secondary-btn" type="button" data-patient-edit-cancel>Cancel</button>
+              <button class="primary-btn" type="submit" data-patient-edit-submit>Save changes</button>
+            </div>
+          </div>
+        </form>
       </section>
 
       <section class="surface">

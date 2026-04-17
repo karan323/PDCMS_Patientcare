@@ -17,6 +17,13 @@ window.PDCMS.initializePatientSearch = () => {
   const entryDateInput = document.querySelector("[data-patient-filter-entry-date]");
   const entryDateFromInput = document.querySelector("[data-patient-filter-entry-date-from]");
   const entryDateToInput = document.querySelector("[data-patient-filter-entry-date-to]");
+  const editPanel = document.querySelector("[data-patient-edit-panel]");
+  const editForm = document.querySelector("[data-patient-edit-form]");
+  const editTitle = document.querySelector("[data-patient-edit-title]");
+  const editStatus = document.querySelector("[data-patient-edit-status]");
+  const editCancelButton = document.querySelector("[data-patient-edit-cancel]");
+  const editSubmitButton = document.querySelector("[data-patient-edit-submit]");
+  const editFieldElements = [...document.querySelectorAll("[data-patient-edit-field]")];
   const status = document.querySelector("[data-patient-search-status]");
   const list = document.querySelector("[data-patient-record-list]");
   const empty = document.querySelector("[data-patient-record-empty]");
@@ -40,6 +47,13 @@ window.PDCMS.initializePatientSearch = () => {
     !entryDateInput ||
     !entryDateFromInput ||
     !entryDateToInput ||
+    !editPanel ||
+    !editForm ||
+    !editTitle ||
+    !editStatus ||
+    !editCancelButton ||
+    !editSubmitButton ||
+    editFieldElements.length === 0 ||
     !status ||
     !list ||
     !empty ||
@@ -49,14 +63,35 @@ window.PDCMS.initializePatientSearch = () => {
     return;
   }
 
+  const editFields = Object.fromEntries(
+    editFieldElements.map(field => [field.dataset.patientEditField, field])
+  );
+
+  let currentSearchRequest = null;
+  let currentEditingRecordId = null;
+
   const setStatus = (message, tone = "muted") => {
     status.textContent = message;
     status.dataset.tone = tone;
   };
 
-  const requestJson = async url => {
+  const setEditStatus = (message, tone = "muted") => {
+    editStatus.textContent = message;
+    editStatus.dataset.tone = tone;
+  };
+
+  const setEditBusy = isBusy => {
+    editSubmitButton.disabled = isBusy;
+    editCancelButton.disabled = isBusy;
+  };
+
+  const requestJson = async (url, options = {}) => {
     const response = await fetch(url, {
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
+      ...options
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -102,11 +137,21 @@ window.PDCMS.initializePatientSearch = () => {
     subtitle.textContent = `${displayValue(record.patientId)} • ${displayValue(record.admissionId)}`;
     titleBlock.append(title, subtitle);
 
+    const actions = document.createElement("div");
+    actions.className = "patient-record-head-actions";
+
     const statusPill = document.createElement("span");
     statusPill.className = "pill success";
     statusPill.textContent = displayValue(record.status);
 
-    header.append(titleBlock, statusPill);
+    const editButton = document.createElement("button");
+    editButton.className = "secondary-btn patient-record-edit-btn";
+    editButton.type = "button";
+    editButton.textContent = "Edit";
+    editButton.dataset.patientEditRecord = record.id;
+
+    actions.append(statusPill, editButton);
+    header.append(titleBlock, actions);
 
     const grid = document.createElement("div");
     grid.className = "patient-record-grid";
@@ -136,6 +181,14 @@ window.PDCMS.initializePatientSearch = () => {
     filtersPanel.hidden = !isOpen;
     filterToggleButton.textContent = isOpen ? "Hide filters" : "Advanced filters";
     filterToggleButton.setAttribute("aria-expanded", String(isOpen));
+  };
+
+  const setEditOpen = isOpen => {
+    editPanel.hidden = !isOpen;
+
+    if (isOpen) {
+      editPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   const syncDateFields = () => {
@@ -173,6 +226,8 @@ window.PDCMS.initializePatientSearch = () => {
 
   const getSearchRequest = () => {
     const searchQuery = input.value.trim();
+    const isBroadSearch = searchQuery.startsWith("*");
+    const normalizedBroadSearchQuery = searchQuery.slice(1).trim();
     const patientId = patientIdFilterInput.value.trim();
     const fullName = fullNameFilterInput.value.trim();
     const doctor = doctorFilterInput.value.trim();
@@ -183,9 +238,17 @@ window.PDCMS.initializePatientSearch = () => {
     const params = new URLSearchParams();
     const descriptions = [];
 
+    if (isBroadSearch && !normalizedBroadSearchQuery) {
+      throw new Error("Enter a search term after * to run a broad patient search.");
+    }
+
     if (searchQuery) {
       params.set("q", searchQuery);
-      descriptions.push(`patient ID or name matching "${searchQuery}"`);
+      descriptions.push(
+        isBroadSearch && normalizedBroadSearchQuery
+          ? `any patient field matching "${normalizedBroadSearchQuery}"`
+          : `patient ID or name matching "${searchQuery}"`
+      );
     }
 
     if (patientId) {
@@ -247,11 +310,50 @@ window.PDCMS.initializePatientSearch = () => {
   };
 
   const loadRecords = async searchRequest => {
+    currentSearchRequest = searchRequest;
     setStatus(searchRequest.isSearching ? "Searching patients..." : "Loading all patients...");
 
     const payload = await requestJson(apiUrl(`/api/admissions?${searchRequest.queryString}`));
     renderRecords(payload.items || [], searchRequest.description);
     setStatus(searchRequest.isSearching ? "Search complete." : "All patients loaded.", "success");
+  };
+
+  const populateEditForm = record => {
+    Object.entries(editFields).forEach(([key, field]) => {
+      field.value = record[key] ?? "";
+    });
+
+    editTitle.textContent = `Edit ${displayValue(record.fullName)}`;
+    setEditStatus("Update the patient admission details and save changes.");
+  };
+
+  const closeEditPanel = () => {
+    currentEditingRecordId = null;
+    editForm.reset();
+    setEditStatus("");
+    setEditBusy(false);
+    setEditOpen(false);
+  };
+
+  const readEditPayload = () =>
+    Object.fromEntries(
+      Object.entries(editFields).map(([key, field]) => [key, field.value])
+    );
+
+  const openEditPanel = async recordId => {
+    setEditOpen(true);
+    setEditStatus("Loading patient record...");
+    setEditBusy(true);
+
+    try {
+      const record = await requestJson(apiUrl(`/api/admissions/${recordId}`));
+      currentEditingRecordId = record.id;
+      populateEditForm(record);
+    } catch (error) {
+      setEditStatus(error.message, "error");
+    } finally {
+      setEditBusy(false);
+    }
   };
 
   form.addEventListener("submit", event => {
@@ -268,7 +370,45 @@ window.PDCMS.initializePatientSearch = () => {
       return;
     }
 
+    closeEditPanel();
     void loadRecords(searchRequest).catch(handleLoadError);
+  });
+
+  editForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    if (!currentEditingRecordId) {
+      setEditStatus("Open a patient record before saving changes.", "error");
+      return;
+    }
+
+    setEditBusy(true);
+    setEditStatus("Saving changes...");
+
+    void requestJson(apiUrl(`/api/admissions/${currentEditingRecordId}`), {
+      method: "PATCH",
+      body: JSON.stringify(readEditPayload())
+    })
+      .then(async updated => {
+        await loadRecords(currentSearchRequest || getDefaultSearchRequest());
+        closeEditPanel();
+        setStatus(`Updated ${updated.fullName}.`, "success");
+      })
+      .catch(error => {
+        setEditStatus(error.message, "error");
+      })
+      .finally(() => {
+        setEditBusy(false);
+      });
+  });
+
+  list.addEventListener("click", event => {
+    const button = event.target.closest("[data-patient-edit-record]");
+    if (!button) {
+      return;
+    }
+
+    void openEditPanel(button.dataset.patientEditRecord);
   });
 
   filterToggleButton.addEventListener("click", () => {
@@ -286,12 +426,18 @@ window.PDCMS.initializePatientSearch = () => {
     form.reset();
     syncDateFields();
     setFiltersOpen(false);
+    closeEditPanel();
 
     void loadRecords(getDefaultSearchRequest()).catch(handleLoadError);
   });
 
+  editCancelButton.addEventListener("click", () => {
+    closeEditPanel();
+  });
+
   syncDateFields();
   setFiltersOpen(false);
+  setEditOpen(false);
 
   void loadRecords(getDefaultSearchRequest()).catch(handleLoadError);
 };

@@ -149,6 +149,74 @@ test("admission validation rejects incomplete payloads", async () => {
   }
 });
 
+test("admission flow supports editing an existing record", async () => {
+  const context = await createTestServer();
+
+  try {
+    const createResponse = await fetch(`${context.baseUrl}/api/admissions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patientId: "AB1234",
+        admissionId: "ADM4321",
+        fullName: "Karan Mistry",
+        admissionDate: "2026-04-12",
+        department: "Cardiology",
+        status: "Observation",
+        doctor: "Dr. Raven"
+      })
+    });
+    const created = await createResponse.json();
+
+    assert.equal(createResponse.status, 201);
+
+    const updateResponse = await fetch(`${context.baseUrl}/api/admissions/${created.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patientId: "AB1234",
+        admissionId: "ADM4321",
+        fullName: "Karan Mistry Updated",
+        age: 32,
+        gender: "Male",
+        dateOfBirth: "1994-02-18",
+        mobileNumber: "5550102030",
+        address: "45 Updated Street",
+        emergencyContact: "Family Contact",
+        bloodGroup: "B+",
+        insuranceProfileType: "Private insurance",
+        admissionDate: "2026-04-15",
+        admissionTime: "10:30",
+        department: "Neurology",
+        ward: "B1",
+        room: "204",
+        bedNumber: "B-2",
+        doctor: "Dr. Nair",
+        diagnosis: "Updated diagnosis",
+        allergies: "Penicillin",
+        status: "Stable"
+      })
+    });
+    const updated = await updateResponse.json();
+
+    assert.equal(updateResponse.status, 200);
+    assert.equal(updated.fullName, "Karan Mistry Updated");
+    assert.equal(updated.department, "Neurology");
+    assert.equal(updated.doctor, "Dr. Nair");
+    assert.equal(updated.admissionDate, "2026-04-15");
+
+    const detailResponse = await fetch(`${context.baseUrl}/api/admissions/${created.id}`);
+    const detail = await detailResponse.json();
+
+    assert.equal(detailResponse.status, 200);
+    assert.equal(detail.fullName, "Karan Mistry Updated");
+    assert.equal(detail.mobileNumber, "5550102030");
+    assert.equal(detail.status, "Stable");
+  } finally {
+    await context.close();
+  }
+});
+
 test("admission list supports loading all records and structured server-side filters", async () => {
   const context = await createTestServer();
 
@@ -229,6 +297,20 @@ test("admission list supports loading all records and structured server-side fil
 
     assert.equal(unsupportedDefaultSearchResponse.status, 200);
     assert.equal(unsupportedDefaultSearchPayload.items.length, 0);
+
+    const broadDepartmentSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=*neurology`);
+    const broadDepartmentSearchPayload = await broadDepartmentSearchResponse.json();
+
+    assert.equal(broadDepartmentSearchResponse.status, 200);
+    assert.equal(broadDepartmentSearchPayload.items.length, 1);
+    assert.equal(broadDepartmentSearchPayload.items[0].fullName, "Morgan Lee");
+
+    const broadDoctorSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=*karim`);
+    const broadDoctorSearchPayload = await broadDoctorSearchResponse.json();
+
+    assert.equal(broadDoctorSearchResponse.status, 200);
+    assert.equal(broadDoctorSearchPayload.items.length, 1);
+    assert.equal(broadDoctorSearchPayload.items[0].fullName, "Taylor Reed");
   } finally {
     await context.close();
   }

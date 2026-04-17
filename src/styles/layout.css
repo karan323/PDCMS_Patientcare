@@ -175,6 +175,12 @@
   gap: 16px;
 }
 
+.patient-edit-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
 .patient-record-list {
   display: grid;
   gap: 16px;

@@ -615,6 +615,14 @@ textarea {
   align-items: start;
 }
 
+.patient-record-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+}
+
 .patient-record-head h4,
 .patient-record-head p {
   margin: 0;
@@ -627,6 +635,11 @@ textarea {
 .patient-record-head p {
   margin-top: 6px;
   color: var(--muted);
+}
+
+.patient-record-edit-btn {
+  min-width: 90px;
+  padding: 11px 14px;
 }
 
 .patient-record-grid div {

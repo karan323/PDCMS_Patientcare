@@ -141,6 +141,32 @@ const createApp = ({ workloadStore, admissionStore, storageKind }) => {
     response.status(201).json(item);
   });
 
+  app.patch("/api/admissions/:id", async (request, response) => {
+    const existingItem = await admissionStore.getById(request.params.id);
+    if (!existingItem) {
+      response.status(404).json({ error: "Admission not found." });
+      return;
+    }
+
+    const result = validateAdmissionPayload(request.body || {}, {
+      existingIdentifiers: {
+        patientId: existingItem.patientId,
+        admissionId: existingItem.admissionId
+      }
+    });
+    if (result.errors) {
+      response.status(400).json({ error: result.errors.join(" ") });
+      return;
+    }
+
+    const item = await admissionStore.update({
+      id: request.params.id,
+      admission: result.value
+    });
+
+    response.json(item);
+  });
+
   app.get("/", sendHtmlPage("index.html"));
   app.get(["/patients", "/patients.html"], sendHtmlPage("patients.html"));
   app.get(/^(?!\/api|\/src).*/, sendHtmlPage("index.html"));

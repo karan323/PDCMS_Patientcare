@@ -51,6 +51,7 @@ class PostgresAdmissionStore {
 
   async list({
     query = "",
+    queryMode = "default",
     patientId = null,
     fullName = null,
     doctor = null,
@@ -60,6 +61,7 @@ class PostgresAdmissionStore {
     limit = null
   } = {}) {
     const normalizedQuery = String(query || "").trim();
+    const normalizedQueryMode = queryMode === "broad" ? "broad" : "default";
     const normalizedPatientId = String(patientId || "").trim();
     const normalizedFullName = String(fullName || "").trim();
     const normalizedDoctor = String(doctor || "").trim();
@@ -73,8 +75,32 @@ class PostgresAdmissionStore {
       parameters.push(`%${normalizedQuery}%`);
       conditions.push(`
         (
+          ${
+            normalizedQueryMode === "broad"
+              ? `
+          patient_id ILIKE $${parameters.length}
+          OR admission_id ILIKE $${parameters.length}
+          OR full_name ILIKE $${parameters.length}
+          OR COALESCE(mobile_number, '') ILIKE $${parameters.length}
+          OR department ILIKE $${parameters.length}
+          OR COALESCE(doctor, '') ILIKE $${parameters.length}
+          OR status ILIKE $${parameters.length}
+          OR COALESCE(ward, '') ILIKE $${parameters.length}
+          OR COALESCE(room, '') ILIKE $${parameters.length}
+          OR COALESCE(bed_number, '') ILIKE $${parameters.length}
+          OR COALESCE(diagnosis, '') ILIKE $${parameters.length}
+          OR COALESCE(allergies, '') ILIKE $${parameters.length}
+          OR COALESCE(address, '') ILIKE $${parameters.length}
+          OR COALESCE(emergency_contact, '') ILIKE $${parameters.length}
+          OR COALESCE(insurance_profile_type, '') ILIKE $${parameters.length}
+          OR COALESCE(blood_group, '') ILIKE $${parameters.length}
+          OR CAST(admission_date AS TEXT) ILIKE $${parameters.length}
+                `
+              : `
           patient_id ILIKE $${parameters.length}
           OR full_name ILIKE $${parameters.length}
+                `
+          }
         )
       `);
     }
@@ -269,6 +295,87 @@ class PostgresAdmissionStore {
     );
 
     return result.rows[0];
+  }
+
+  async update({ id, admission }) {
+    const result = await this.pool.query(
+      `
+        UPDATE admissions
+        SET
+          patient_id = $2,
+          admission_id = $3,
+          full_name = $4,
+          age = $5,
+          gender = $6,
+          date_of_birth = $7,
+          mobile_number = $8,
+          address = $9,
+          emergency_contact = $10,
+          blood_group = $11,
+          insurance_profile_type = $12,
+          admission_date = $13,
+          admission_time = $14,
+          department = $15,
+          ward = $16,
+          room = $17,
+          bed_number = $18,
+          doctor = $19,
+          diagnosis = $20,
+          allergies = $21,
+          status = $22
+        WHERE id = $1
+        RETURNING
+          id,
+          patient_id AS "patientId",
+          admission_id AS "admissionId",
+          full_name AS "fullName",
+          age,
+          gender,
+          date_of_birth AS "dateOfBirth",
+          mobile_number AS "mobileNumber",
+          address,
+          emergency_contact AS "emergencyContact",
+          blood_group AS "bloodGroup",
+          insurance_profile_type AS "insuranceProfileType",
+          admission_date AS "admissionDate",
+          admission_time AS "admissionTime",
+          department,
+          ward,
+          room,
+          bed_number AS "bedNumber",
+          doctor,
+          diagnosis,
+          allergies,
+          status,
+          created_at AS "createdAt"
+      `,
+      [
+        id,
+        admission.patientId,
+        admission.admissionId,
+        admission.fullName,
+        admission.age,
+        admission.gender,
+        admission.dateOfBirth,
+        admission.mobileNumber,
+        admission.address,
+        admission.emergencyContact,
+        admission.bloodGroup,
+        admission.insuranceProfileType,
+        admission.admissionDate,
+        admission.admissionTime,
+        admission.department,
+        admission.ward,
+        admission.room,
+        admission.bedNumber,
+        admission.doctor,
+        admission.diagnosis,
+        admission.allergies,
+        admission.status
+      ]
+    );
+
+    return result.rows[0] || null;
   }
 
   async getSummary() {

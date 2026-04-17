@@ -86,6 +86,8 @@
   }
 
   .patient-search-actions,
+  .patient-edit-actions,
+  .patient-record-head-actions,
   .patient-record-head {
     flex-direction: column;
   }
