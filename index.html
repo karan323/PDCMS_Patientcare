@@ -401,7 +401,12 @@
             <input id="report-file-reference" type="hidden">
             <p class="field-note" data-report-file-feedback>No file selected. Only DICOM and PDF files are allowed.</p>
           </div>
-          <div class="field field-span-2"><label class="checkbox-line"><input id="report-visible-to-patient" type="checkbox"> Make sure this report is visible on the patient side</label></div>
+          <div class="field field-span-full report-visibility-field">
+            <label class="checkbox-line" for="report-visible-to-patient">
+              <input id="report-visible-to-patient" type="checkbox">
+              <span>Make sure this report is visible on the patient side</span>
+            </label>
+          </div>
         </div>
       </section>
 
