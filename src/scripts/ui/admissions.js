@@ -144,6 +144,30 @@ const REPORT_TAB_CONTENT = {
   }
 };
 
+const normalizeDateInputValue = value => {
+  if (!value) {
+    return "";
+  }
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().slice(0, 10);
+  }
+
+  const normalized = String(value).trim();
+  const isoDateMatch = normalized.match(/^(\d{4}-\d{2}-\d{2})/);
+  return isoDateMatch ? isoDateMatch[1] : normalized;
+};
+
+const normalizeTimeInputValue = value => {
+  if (!value) {
+    return "";
+  }
+
+  const normalized = String(value).trim();
+  const timeMatch = normalized.match(/^(\d{2}:\d{2})/);
+  return timeMatch ? timeMatch[1] : normalized;
+};
+
 const initializeReportWorkspace = ({ reportTypeField, reportFileField }) => {
   const tabs = [...document.querySelectorAll("[data-report-tab]")];
   const panelTitle = document.querySelector("[data-report-panel-title]");
@@ -298,6 +322,16 @@ window.PDCMS.initializeAdmissions = () => {
   const setFieldValue = (config, value) => {
     if (config.type === "checkbox") {
       config.element.checked = Boolean(value);
+      return;
+    }
+
+    if (config.element.type === "date") {
+      config.element.value = normalizeDateInputValue(value);
+      return;
+    }
+
+    if (config.element.type === "time") {
+      config.element.value = normalizeTimeInputValue(value);
       return;
     }
 

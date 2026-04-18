@@ -1,5 +1,29 @@
 window.PDCMS = window.PDCMS || {};
 
+const normalizeDateInputValue = value => {
+  if (!value) {
+    return "";
+  }
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().slice(0, 10);
+  }
+
+  const normalized = String(value).trim();
+  const isoDateMatch = normalized.match(/^(\d{4}-\d{2}-\d{2})/);
+  return isoDateMatch ? isoDateMatch[1] : normalized;
+};
+
+const normalizeTimeInputValue = value => {
+  if (!value) {
+    return "";
+  }
+
+  const normalized = String(value).trim();
+  const timeMatch = normalized.match(/^(\d{2}:\d{2})/);
+  return timeMatch ? timeMatch[1] : normalized;
+};
+
 window.PDCMS.initializePatientSearch = () => {
   const apiUrl = window.PDCMS.productConfig?.apiUrl;
   const auth = window.PDCMS.auth;
@@ -321,6 +345,16 @@ window.PDCMS.initializePatientSearch = () => {
 
   const populateEditForm = record => {
     Object.entries(editFields).forEach(([key, field]) => {
+      if (field.type === "date") {
+        field.value = normalizeDateInputValue(record[key]);
+        return;
+      }
+
+      if (field.type === "time") {
+        field.value = normalizeTimeInputValue(record[key]);
+        return;
+      }
+
       field.value = record[key] ?? "";
     });
 
