@@ -60,6 +60,7 @@
   .subsection-grid,
   .check-grid,
   .patient-search-filter-head,
+  .report-panel-head,
   .footer-actions {
     grid-template-columns: 1fr;
     flex-direction: column;

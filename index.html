@@ -362,17 +362,46 @@
       </section>
 
       <section id="reports" class="surface" data-collapsible hidden>
-        <div class="section-head"><div><p class="section-label">Module 07</p><h3>Reports and diagnostics management</h3></div></div>
+        <div class="section-head">
+          <div>
+            <p class="section-label">Module 07</p>
+            <h3>Reports and diagnostics management</h3>
+          </div>
+          <p class="section-intro">Track report ordering, scheduling, result availability, and patient-facing visibility by report category.</p>
+        </div>
+        <div class="report-workspace">
+          <div class="report-tab-list" role="tablist" aria-label="Report categories">
+            <button class="report-tab is-active" type="button" role="tab" aria-selected="true" data-report-tab="Radiology reports">Radiology reports</button>
+            <button class="report-tab" type="button" role="tab" aria-selected="false" data-report-tab="Pathology reports">Pathology reports</button>
+            <button class="report-tab" type="button" role="tab" aria-selected="false" data-report-tab="Cardiology">Cardiology</button>
+            <button class="report-tab" type="button" role="tab" aria-selected="false" data-report-tab="Clinical reports (Biopsy, microbiology, genetic)">Clinical reports</button>
+            <button class="report-tab" type="button" role="tab" aria-selected="false" data-report-tab="Surgical reports">Surgical reports</button>
+          </div>
+          <section class="report-panel" aria-live="polite">
+            <div class="report-panel-head">
+              <div>
+                <p class="section-label">Selected report stream</p>
+                <h4 data-report-panel-title>Radiology reports</h4>
+              </div>
+              <p data-report-panel-copy>Capture imaging report orders, scheduling, result readiness, attached files, and patient-side visibility.</p>
+            </div>
+            <input id="report-type" type="hidden" value="Radiology reports">
+          </section>
+        </div>
         <div class="form-grid">
           <div class="field"><label for="report-name">Test / report name</label><input id="report-name" type="text"></div>
-          <div class="field"><label for="report-type">Type</label><select id="report-type"><option value="" selected></option><option>Lab</option><option>Radiology</option><option>Pathology</option><option>Consult report</option></select></div>
-          <div class="field"><label for="ordered-date">Date ordered</label><input id="ordered-date" type="date"></div>
+          <div class="field"><label for="ordered-date">Date ordered report</label><input id="ordered-date" type="date"></div>
           <div class="field"><label for="scheduled-date">Date scheduled</label><input id="scheduled-date" type="date"></div>
+          <div class="field"><label for="result-date">Date results available</label><input id="result-date" type="date"></div>
           <div class="field"><label for="report-status">Status</label><select id="report-status"><option value="" selected></option><option>Ordered</option><option>Scheduled</option><option>In progress</option><option>Available</option></select></div>
-          <div class="field"><label for="result-date">Result available date</label><input id="result-date" type="date"></div>
-          <div class="field field-span-2"><label for="report-remarks">Remarks</label><textarea id="report-remarks" rows="3"></textarea></div>
-          <div class="field"><label for="report-file-reference">Report file reference</label><input id="report-file-reference" type="text" placeholder="File name or storage reference"></div>
-          <div class="field"><label class="checkbox-line"><input id="report-visible-to-patient" type="checkbox"> Visible to patient portal</label></div>
+          <div class="field field-span-2"><label for="report-remarks">Remarks</label><textarea id="report-remarks" rows="3" placeholder="Add any report notes, preparation details, or turnaround remarks"></textarea></div>
+          <div class="field field-span-2">
+            <label for="report-file-upload">Add report file</label>
+            <input id="report-file-upload" type="file" accept=".pdf,.dcm,.dicom,application/pdf">
+            <input id="report-file-reference" type="hidden">
+            <p class="field-note" data-report-file-feedback>No file selected. Only DICOM and PDF files are allowed.</p>
+          </div>
+          <div class="field field-span-2"><label class="checkbox-line"><input id="report-visible-to-patient" type="checkbox"> Make sure this report is visible on the patient side</label></div>
         </div>
       </section>
 

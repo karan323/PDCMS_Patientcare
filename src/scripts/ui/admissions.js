@@ -121,6 +121,104 @@ const getEditCopy = fullName => ({
   footer: "Save changes"
 });
 
+const REPORT_TAB_CONTENT = {
+  "Radiology reports": {
+    title: "Radiology reports",
+    copy: "Capture imaging report orders, scheduling, result readiness, attached files, and patient-side visibility."
+  },
+  "Pathology reports": {
+    title: "Pathology reports",
+    copy: "Track pathology specimen workflows, schedule milestones, completed findings, and release visibility."
+  },
+  Cardiology: {
+    title: "Cardiology",
+    copy: "Manage cardiology diagnostics, scheduling windows, finalized results, and whether the patient can view them."
+  },
+  "Clinical reports (Biopsy, microbiology, genetic)": {
+    title: "Clinical reports (Biopsy, microbiology, genetic)",
+    copy: "Organize biopsy, microbiology, and genetic reports with one structured workflow for dates, files, remarks, and visibility."
+  },
+  "Surgical reports": {
+    title: "Surgical reports",
+    copy: "Record surgery-related reports, timing checkpoints, uploaded documents, and patient-side publication status."
+  }
+};
+
+const initializeReportWorkspace = ({ reportTypeField, reportFileField }) => {
+  const tabs = [...document.querySelectorAll("[data-report-tab]")];
+  const panelTitle = document.querySelector("[data-report-panel-title]");
+  const panelCopy = document.querySelector("[data-report-panel-copy]");
+  const fileInput = document.getElementById("report-file-upload");
+  const fileFeedback = document.querySelector("[data-report-file-feedback]");
+
+  if (!reportTypeField?.element || !panelTitle || !panelCopy || tabs.length === 0) {
+    return {
+      syncFromRecord: () => {},
+      resetFileFeedback: () => {}
+    };
+  }
+
+  const defaultTab = tabs[0].dataset.reportTab;
+
+  const setFileFeedback = value => {
+    if (!fileFeedback) {
+      return;
+    }
+
+    fileFeedback.textContent = value || "No file selected. Only DICOM and PDF files are allowed.";
+  };
+
+  const setActiveTab = reportType => {
+    const nextType = REPORT_TAB_CONTENT[reportType] ? reportType : defaultTab;
+    const content = REPORT_TAB_CONTENT[nextType];
+
+    tabs.forEach(tab => {
+      const isActive = tab.dataset.reportTab === nextType;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+    });
+
+    reportTypeField.element.value = nextType;
+    panelTitle.textContent = content.title;
+    panelCopy.textContent = content.copy;
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      setActiveTab(tab.dataset.reportTab);
+    });
+  });
+
+  fileInput?.addEventListener("change", event => {
+    const files = [...(event.currentTarget.files || [])];
+    const value = files.length > 0 ? files.map(file => file.name).join(", ") : "";
+    reportFileField.element.value = value;
+    setFileFeedback(value);
+  });
+
+  setActiveTab(reportTypeField.element.value);
+  setFileFeedback(reportFileField?.element?.value);
+
+  return {
+    syncFromRecord: record => {
+      setActiveTab(record?.reportType);
+      setFileFeedback(record?.reportFileReference || "");
+      if (fileInput && !record?.reportFileReference) {
+        fileInput.value = "";
+      }
+    },
+    resetFileFeedback: () => {
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      setActiveTab(defaultTab);
+      reportFileField.element.value = "";
+      setFileFeedback("");
+    }
+  };
+};
+
 window.PDCMS.initializeAdmissions = () => {
   const apiUrl = window.PDCMS.productConfig?.apiUrl;
   const auth = window.PDCMS.auth;
@@ -165,6 +263,10 @@ window.PDCMS.initializeAdmissions = () => {
   }
 
   const fields = Object.fromEntries(fieldEntries);
+  const reportWorkspace = initializeReportWorkspace({
+    reportTypeField: fields.reportType,
+    reportFileField: fields.reportFileReference
+  });
   const params = new URLSearchParams(window.location.search);
   let currentEditingRecordId = params.get("edit");
   let isEditMode = Boolean(currentEditingRecordId);
@@ -209,6 +311,7 @@ window.PDCMS.initializeAdmissions = () => {
     Object.entries(fields).forEach(([key, config]) => {
       setFieldValue(config, record[key]);
     });
+    reportWorkspace.syncFromRecord(record);
   };
 
   const requestJson = async (url, options = {}) => {

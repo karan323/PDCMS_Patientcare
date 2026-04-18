@@ -1076,6 +1076,72 @@ textarea {
   box-shadow: 0 18px 36px rgba(41, 66, 53, 0.08);
 }
 
+.report-workspace {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.report-tab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.report-tab {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.report-tab.is-active {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #315f85, #4f8f79);
+  box-shadow: 0 16px 30px rgba(49, 95, 133, 0.2);
+}
+
+.report-panel {
+  padding: 22px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at top right, rgba(194, 218, 234, 0.45), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(240, 247, 242, 0.84));
+  box-shadow: 0 18px 36px rgba(41, 66, 53, 0.08);
+}
+
+.report-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: start;
+}
+
+.report-panel-head h4,
+.report-panel-head p {
+  margin: 0;
+}
+
+.report-panel-head p:last-child {
+  max-width: 60ch;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.field-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
 .footer-actions .form-status {
   margin: 0;
 }
