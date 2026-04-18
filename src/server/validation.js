@@ -7,7 +7,102 @@ const ALLOWED_GENDERS = new Set(["Female", "Male", "Other"]);
 const ALLOWED_BLOOD_GROUPS = new Set(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]);
 const ALLOWED_STATUSES = new Set(["Stable", "Observation", "Critical", "Discharge planned"]);
 
+const EXTRA_TEXT_FIELDS = [
+  "assignedNurse",
+  "profileAssignedDoctor",
+  "admissionHistory",
+  "currentRoom",
+  "profileConditionSummary",
+  "attachedDocumentsCount",
+  "documentReference",
+  "activityType",
+  "nursingUpdate",
+  "doctorRounds",
+  "remarks",
+  "treatmentNotes",
+  "diagnosisUpdate",
+  "careConditionSummary",
+  "dietInstructions",
+  "precautions",
+  "progressNotes",
+  "medicineName",
+  "dose",
+  "medicineType",
+  "route",
+  "frequency",
+  "timing",
+  "duration",
+  "food",
+  "prescribedBy",
+  "medStatus",
+  "medInstructions",
+  "reportName",
+  "reportType",
+  "reportStatus",
+  "reportRemarks",
+  "reportFileReference",
+  "consultantName",
+  "consultantSpecialty",
+  "consultReason",
+  "consultStatus",
+  "consultNotes",
+  "appointmentDoctor",
+  "appointmentDepartment",
+  "slotDuration",
+  "visitReason",
+  "appointmentStatus",
+  "dischargeSummary",
+  "dischargeMedication",
+  "homeCare",
+  "warningSigns",
+  "reviewInstructions",
+  "staffNotes",
+  "doctorNotes",
+  "handoverNotes",
+  "whoUpdatedWhat",
+  "timestampLogs",
+  "editHistoryCount",
+  "roleBasedVisibility",
+  "approvalFlow"
+];
+
+const EXTRA_DATE_FIELDS = [
+  ["activityDate", "Activity date"],
+  ["startDate", "Medication start date"],
+  ["endDate", "Medication end date"],
+  ["orderedDate", "Report ordered date"],
+  ["scheduledDate", "Report scheduled date"],
+  ["resultDate", "Report result date"],
+  ["consultDate", "Consult date"],
+  ["appointmentDate", "Appointment date"],
+  ["expectedDischarge", "Expected discharge date"],
+  ["dischargeDate", "Discharge date"],
+  ["followUpDate", "Follow-up date"]
+];
+
+const EXTRA_TIME_FIELDS = [
+  ["activityTime", "Activity time"],
+  ["consultTime", "Consult time"],
+  ["appointmentTime", "Appointment time"]
+];
+
+const EXTRA_BOOLEAN_FIELDS = [
+  "dischargeSummaryVisibleToPatient",
+  "consultantNoteVisibleToPatient",
+  "finalLabReportVisibleToPatient",
+  "vitalsRecorded",
+  "mealCompleted",
+  "procedureCompleted",
+  "mobilityDone",
+  "reportVisibleToPatient",
+  "notePatientFacing"
+];
+
 const cleanString = value => {
+  if (typeof value === "number") {
+    return String(value).trim();
+  }
+
   if (typeof value !== "string") {
     return "";
   }
@@ -18,6 +113,23 @@ const cleanString = value => {
 const optionalString = value => {
   const cleaned = cleanString(value);
   return cleaned || null;
+};
+
+const optionalBoolean = value => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  const normalized = cleanString(value).toLowerCase();
+  if (normalized === "true" || normalized === "1" || normalized === "yes") {
+    return true;
+  }
+
+  if (normalized === "false" || normalized === "0" || normalized === "no") {
+    return false;
+  }
+
+  return false;
 };
 
 const generateCode = prefix => {
@@ -92,9 +204,30 @@ const validateAdmissionPayload = (payload, options = {}) => {
     errors.push("Admission time must use HH:MM format.");
   }
 
+  EXTRA_DATE_FIELDS.forEach(([key, label]) => {
+    const value = optionalString(payload?.[key]);
+    if (value && !isValidDate(value)) {
+      errors.push(`${label} must use YYYY-MM-DD format.`);
+    }
+  });
+
+  EXTRA_TIME_FIELDS.forEach(([key, label]) => {
+    const value = optionalString(payload?.[key]);
+    if (value && !isValidTime(value)) {
+      errors.push(`${label} must use HH:MM format.`);
+    }
+  });
+
   if (errors.length > 0) {
     return { errors };
   }
+
+  const extraFields = {
+    ...Object.fromEntries(EXTRA_TEXT_FIELDS.map(key => [key, optionalString(payload?.[key])])),
+    ...Object.fromEntries(EXTRA_DATE_FIELDS.map(([key]) => [key, optionalString(payload?.[key])])),
+    ...Object.fromEntries(EXTRA_TIME_FIELDS.map(([key]) => [key, optionalString(payload?.[key])])),
+    ...Object.fromEntries(EXTRA_BOOLEAN_FIELDS.map(key => [key, optionalBoolean(payload?.[key])]))
+  };
 
   return {
     value: {
@@ -118,7 +251,8 @@ const validateAdmissionPayload = (payload, options = {}) => {
       doctor: optionalString(payload?.doctor),
       diagnosis: optionalString(payload?.diagnosis),
       allergies: optionalString(payload?.allergies),
-      status
+      status,
+      ...extraFields
     }
   };
 };

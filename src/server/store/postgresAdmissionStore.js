@@ -1,5 +1,43 @@
 const crypto = require("node:crypto");
 
+const CORE_FIELDS = new Set([
+  "patientId",
+  "admissionId",
+  "fullName",
+  "age",
+  "gender",
+  "dateOfBirth",
+  "mobileNumber",
+  "address",
+  "emergencyContact",
+  "bloodGroup",
+  "insuranceProfileType",
+  "admissionDate",
+  "admissionTime",
+  "department",
+  "ward",
+  "room",
+  "bedNumber",
+  "doctor",
+  "diagnosis",
+  "allergies",
+  "status"
+]);
+
+const buildExtraData = admission =>
+  Object.fromEntries(Object.entries(admission).filter(([key]) => !CORE_FIELDS.has(key)));
+
+const flattenAdmissionRow = row => {
+  const extraData =
+    row.extraData && typeof row.extraData === "object" && !Array.isArray(row.extraData) ? row.extraData : {};
+
+  return {
+    ...row,
+    ...extraData,
+    extraData: undefined
+  };
+};
+
 class PostgresAdmissionStore {
   constructor(pool) {
     this.pool = pool;
@@ -29,9 +67,15 @@ class PostgresAdmissionStore {
         doctor TEXT,
         diagnosis TEXT,
         allergies TEXT,
+        extra_data JSONB NOT NULL DEFAULT '{}'::jsonb,
         status TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
+    `);
+
+    await this.pool.query(`
+      ALTER TABLE admissions
+      ADD COLUMN IF NOT EXISTS extra_data JSONB NOT NULL DEFAULT '{}'::jsonb
     `);
 
     await this.pool.query(`
@@ -163,6 +207,7 @@ class PostgresAdmissionStore {
           doctor,
           diagnosis,
           allergies,
+          extra_data AS "extraData",
           status,
           created_at AS "createdAt"
         FROM admissions
@@ -173,7 +218,7 @@ class PostgresAdmissionStore {
       parameters
     );
 
-    return result.rows;
+    return result.rows.map(flattenAdmissionRow);
   }
 
   async getById(id) {
@@ -201,6 +246,7 @@ class PostgresAdmissionStore {
           doctor,
           diagnosis,
           allergies,
+          extra_data AS "extraData",
           status,
           created_at AS "createdAt"
         FROM admissions
@@ -209,7 +255,7 @@ class PostgresAdmissionStore {
       [id]
     );
 
-    return result.rows[0] || null;
+    return result.rows[0] ? flattenAdmissionRow(result.rows[0]) : null;
   }
 
   async create(admission) {
@@ -238,10 +284,11 @@ class PostgresAdmissionStore {
           doctor,
           diagnosis,
           allergies,
+          extra_data,
           status
         )
         VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23
         )
         RETURNING
           id,
@@ -265,6 +312,7 @@ class PostgresAdmissionStore {
           doctor,
           diagnosis,
           allergies,
+          extra_data AS "extraData",
           status,
           created_at AS "createdAt"
       `,
@@ -290,11 +338,12 @@ class PostgresAdmissionStore {
         admission.doctor,
         admission.diagnosis,
         admission.allergies,
+        JSON.stringify(buildExtraData(admission)),
         admission.status
       ]
     );
 
-    return result.rows[0];
+    return flattenAdmissionRow(result.rows[0]);
   }
 
   async update({ id, admission }) {
@@ -322,7 +371,8 @@ class PostgresAdmissionStore {
           doctor = $19,
           diagnosis = $20,
           allergies = $21,
-          status = $22
+          extra_data = $22::jsonb,
+          status = $23
         WHERE id = $1
         RETURNING
           id,
@@ -346,6 +396,7 @@ class PostgresAdmissionStore {
           doctor,
           diagnosis,
           allergies,
+          extra_data AS "extraData",
           status,
           created_at AS "createdAt"
       `,
@@ -371,11 +422,12 @@ class PostgresAdmissionStore {
         admission.doctor,
         admission.diagnosis,
         admission.allergies,
+        JSON.stringify(buildExtraData(admission)),
         admission.status
       ]
     );
 
-    return result.rows[0] || null;
+    return result.rows[0] ? flattenAdmissionRow(result.rows[0]) : null;
   }
 
   async getSummary() {

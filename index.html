@@ -130,8 +130,11 @@
 
       <section id="registration" class="surface" data-collapsible hidden>
         <div class="section-head">
-          <div><p class="section-label">Module 02</p><h3>Patient registration and admission entry</h3></div>
-          <p class="section-intro">All core identity, admission, doctor assignment, emergency, and clinical entry points are grouped here so the patient record starts complete.</p>
+          <div>
+            <p class="section-label" data-admission-section-label>Module 02</p>
+            <h3 data-admission-section-title>Patient registration and admission entry</h3>
+          </div>
+          <p class="section-intro" data-admission-section-intro>All core identity, admission, doctor assignment, emergency, and clinical entry points are grouped here so the patient record starts complete.</p>
         </div>
         <form class="form-grid admission-form" data-admission-form>
           <div class="field"><label for="patient-id">Patient ID</label><input id="patient-id" type="text" value="" placeholder=""></div>
@@ -157,7 +160,7 @@
           <div class="field"><label for="status">Patient status</label><select id="status"><option value="" selected></option><option>Stable</option><option>Observation</option><option>Critical</option><option>Discharge planned</option></select></div>
           <div class="form-actions field-span-full">
             <p class="form-status" data-admission-status aria-live="polite"></p>
-            <button class="primary-btn" type="submit">Save admission</button>
+            <button class="primary-btn" type="submit" data-admission-submit-label>Save admission</button>
           </div>
         </form>
       </section>
@@ -165,25 +168,25 @@
       <section id="profile" class="surface two-column" data-collapsible hidden>
         <div>
           <div class="section-head compact"><div><p class="section-label">Module 03</p><h3>Patient profile management</h3></div></div>
-          <div class="info-table">
-            <div><span>Assigned nurse</span><strong></strong></div>
-            <div><span>Assigned doctor</span><strong></strong></div>
-            <div><span>Admission history</span><strong>0</strong></div>
-            <div><span>Current room</span><strong></strong></div>
-            <div><span>Condition summary</span><strong></strong></div>
-            <div><span>Attached documents</span><strong>0</strong></div>
+          <div class="form-grid compact-grid">
+            <div class="field"><label for="assigned-nurse">Assigned nurse</label><input id="assigned-nurse" type="text"></div>
+            <div class="field"><label for="profile-assigned-doctor">Assigned doctor</label><input id="profile-assigned-doctor" type="text"></div>
+            <div class="field"><label for="admission-history">Admission history</label><input id="admission-history" type="text" placeholder="Previous admissions or summary"></div>
+            <div class="field"><label for="current-room">Current room</label><input id="current-room" type="text"></div>
+            <div class="field field-span-2"><label for="profile-condition-summary">Condition summary</label><textarea id="profile-condition-summary" rows="4"></textarea></div>
+            <div class="field"><label for="attached-documents-count">Attached documents</label><input id="attached-documents-count" type="text" placeholder="0"></div>
           </div>
         </div>
         <div class="document-zone">
           <div class="panel-head"><h4>Document hub</h4><span class="soft-tag">Controlled visibility</span></div>
           <div class="upload-card">
-            <p></p>
-            <button type="button" class="secondary-btn">Upload documents</button>
+            <p>Track what can be exposed to the patient portal while editing the record.</p>
+            <input id="document-reference" type="text" placeholder="Document reference or note">
           </div>
           <div class="toggle-list">
-            <label><input type="checkbox"> Make discharge summary patient-visible</label>
-            <label><input type="checkbox"> Make internal consultant note patient-visible</label>
-            <label><input type="checkbox"> Make final lab report patient-visible</label>
+            <label><input id="discharge-summary-visible-to-patient" type="checkbox"> Make discharge summary patient-visible</label>
+            <label><input id="consultant-note-visible-to-patient" type="checkbox"> Make internal consultant note patient-visible</label>
+            <label><input id="final-lab-report-visible-to-patient" type="checkbox"> Make final lab report patient-visible</label>
           </div>
         </div>
       </section>
@@ -207,10 +210,10 @@
           <div class="subsurface">
             <h4>Status checks</h4>
             <div class="check-grid">
-              <label><input type="checkbox"> Vitals recorded</label>
-              <label><input type="checkbox"> Meal completed</label>
-              <label><input type="checkbox"> Procedure completed</label>
-              <label><input type="checkbox"> Mobility activity done</label>
+              <label><input id="vitals-recorded" type="checkbox"> Vitals recorded</label>
+              <label><input id="meal-completed" type="checkbox"> Meal completed</label>
+              <label><input id="procedure-completed" type="checkbox"> Procedure completed</label>
+              <label><input id="mobility-done" type="checkbox"> Mobility activity done</label>
             </div>
             <div class="field"><label for="remarks">Remarks / notes</label><textarea id="remarks" rows="6" placeholder=""></textarea></div>
           </div>
@@ -279,8 +282,8 @@
           <div class="field"><label for="report-status">Status</label><select id="report-status"><option value="" selected></option><option>Ordered</option><option>Scheduled</option><option>In progress</option><option>Available</option></select></div>
           <div class="field"><label for="result-date">Result available date</label><input id="result-date" type="date"></div>
           <div class="field field-span-2"><label for="report-remarks">Remarks</label><textarea id="report-remarks" rows="3"></textarea></div>
-          <div class="field"><label for="report-file">Upload report</label><input id="report-file" type="file"></div>
-          <div class="field"><label class="checkbox-line"><input type="checkbox"> Visible to patient portal</label></div>
+          <div class="field"><label for="report-file-reference">Report file reference</label><input id="report-file-reference" type="text" placeholder="File name or storage reference"></div>
+          <div class="field"><label class="checkbox-line"><input id="report-visible-to-patient" type="checkbox"> Visible to patient portal</label></div>
         </div>
       </section>
 
@@ -341,25 +344,27 @@
             <div class="field field-span-2"><label for="staff-notes">Staff notes</label><textarea id="staff-notes" rows="3"></textarea></div>
             <div class="field field-span-2"><label for="doctor-notes">Doctor notes</label><textarea id="doctor-notes" rows="3"></textarea></div>
             <div class="field field-span-2"><label for="handover-notes">Nurse handover notes</label><textarea id="handover-notes" rows="3"></textarea></div>
-            <div class="field field-span-2"><label class="checkbox-line"><input type="checkbox"> Mark selected note as patient-facing</label></div>
+            <div class="field field-span-2"><label class="checkbox-line"><input id="note-patient-facing" type="checkbox"> Mark selected note as patient-facing</label></div>
           </div>
         </div>
         <div id="audit" class="subsurface">
           <h4>Audit and record control</h4>
-          <div class="audit-list">
-            <div><span>Who updated what</span><strong></strong></div>
-            <div><span>Timestamp logs</span><strong></strong></div>
-            <div><span>Edit history</span><strong>0</strong></div>
-            <div><span>Role-based visibility</span><strong></strong></div>
-            <div><span>Approval flow</span><strong></strong></div>
+          <div class="form-grid compact-grid">
+            <div class="field field-span-2"><label for="who-updated-what">Who updated what</label><textarea id="who-updated-what" rows="3"></textarea></div>
+            <div class="field field-span-2"><label for="timestamp-logs">Timestamp logs</label><textarea id="timestamp-logs" rows="3"></textarea></div>
+            <div class="field"><label for="edit-history-count">Edit history</label><input id="edit-history-count" type="text" placeholder="0"></div>
+            <div class="field"><label for="role-based-visibility">Role-based visibility</label><input id="role-based-visibility" type="text"></div>
+            <div class="field field-span-2"><label for="approval-flow">Approval flow</label><textarea id="approval-flow" rows="3"></textarea></div>
           </div>
         </div>
       </section>
 
       <section class="footer-actions" data-collapsible-shared hidden>
-        <button class="secondary-btn" type="button">Save draft</button>
-        <button class="secondary-btn" type="button">Send for approval</button>
-        <button class="primary-btn" type="button">Update patient record</button>
+        <p class="form-status" data-record-status aria-live="polite"></p>
+        <div class="footer-action-group">
+          <button class="secondary-btn" type="button" data-record-cancel hidden>Cancel</button>
+          <button class="primary-btn" type="button" data-record-save>Save admission</button>
+        </div>
       </section>
     </main>
   </div>

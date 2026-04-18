@@ -408,7 +408,7 @@ window.PDCMS.initializePatientSearch = () => {
       return;
     }
 
-    void openEditPanel(button.dataset.patientEditRecord);
+    window.location.href = `/?edit=${encodeURIComponent(button.dataset.patientEditRecord)}#registration`;
   });
 
   filterToggleButton.addEventListener("click", () => {

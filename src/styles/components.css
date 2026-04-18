@@ -642,6 +642,10 @@ textarea {
   padding: 11px 14px;
 }
 
+.footer-actions .form-status {
+  margin: 0;
+}
+
 .patient-record-grid div {
   display: grid;
   gap: 6px;

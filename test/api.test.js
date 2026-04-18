@@ -100,7 +100,9 @@ test("admission flow saves a record and updates dashboard summary", async () => 
         department: "Cardiology",
         status: "Discharge planned",
         age: 41,
-        doctor: "Dr. Karim"
+        doctor: "Dr. Karim",
+        assignedNurse: "Nurse Priya",
+        reportVisibleToPatient: true
       })
     });
     const admission = await createResponse.json();
@@ -109,6 +111,8 @@ test("admission flow saves a record and updates dashboard summary", async () => 
     assert.equal(admission.fullName, "Taylor Reed");
     assert.match(admission.patientId, /^PT-/);
     assert.match(admission.admissionId, /^ADM-/);
+    assert.equal(admission.assignedNurse, "Nurse Priya");
+    assert.equal(admission.reportVisibleToPatient, true);
 
     const listResponse = await fetch(`${context.baseUrl}/api/admissions?limit=5`);
     const listed = await listResponse.json();
@@ -194,7 +198,13 @@ test("admission flow supports editing an existing record", async () => {
         doctor: "Dr. Nair",
         diagnosis: "Updated diagnosis",
         allergies: "Penicillin",
-        status: "Stable"
+        status: "Stable",
+        assignedNurse: "Nurse Asha",
+        activityDate: "2026-04-16",
+        consultTime: "14:15",
+        reportVisibleToPatient: true,
+        notePatientFacing: true,
+        approvalFlow: "Head nurse review pending"
       })
     });
     const updated = await updateResponse.json();
@@ -204,6 +214,8 @@ test("admission flow supports editing an existing record", async () => {
     assert.equal(updated.department, "Neurology");
     assert.equal(updated.doctor, "Dr. Nair");
     assert.equal(updated.admissionDate, "2026-04-15");
+    assert.equal(updated.assignedNurse, "Nurse Asha");
+    assert.equal(updated.reportVisibleToPatient, true);
 
     const detailResponse = await fetch(`${context.baseUrl}/api/admissions/${created.id}`);
     const detail = await detailResponse.json();
@@ -212,6 +224,10 @@ test("admission flow supports editing an existing record", async () => {
     assert.equal(detail.fullName, "Karan Mistry Updated");
     assert.equal(detail.mobileNumber, "5550102030");
     assert.equal(detail.status, "Stable");
+    assert.equal(detail.activityDate, "2026-04-16");
+    assert.equal(detail.consultTime, "14:15");
+    assert.equal(detail.notePatientFacing, true);
+    assert.equal(detail.approvalFlow, "Head nurse review pending");
   } finally {
     await context.close();
   }
