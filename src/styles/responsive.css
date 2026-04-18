@@ -7,6 +7,10 @@
     grid-template-columns: 1fr;
   }
 
+  .auth-stage-shell {
+    grid-template-columns: 1fr;
+  }
+
   .sidebar {
     position: static;
   }
@@ -21,6 +25,20 @@
 
   .hero-highlights {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-proof-strip,
+  .landing-band-grid,
+  .story-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-band {
+    grid-template-columns: 1fr;
+  }
+
+  .story-panel--wide {
+    grid-column: 1 / -1;
   }
 
   .metrics-grid,
@@ -72,6 +90,17 @@
     grid-template-columns: 1fr;
   }
 
+  .hero-proof-strip,
+  .landing-band-grid,
+  .story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-photo-overlay h1 {
+    max-width: none;
+    font-size: clamp(2.5rem, 12vw, 3.8rem);
+  }
+
   .hero {
     padding: 24px;
   }
@@ -114,5 +143,40 @@
   .sidebar {
     border-radius: 22px;
     padding: 18px;
+  }
+
+  .hero-visual {
+    min-height: 240px;
+    padding: 18px;
+  }
+
+  .auth-photo-stage {
+    min-height: 520px;
+    padding: 18px;
+  }
+
+  .hero-visual-card--main,
+  .hero-visual-card--accent,
+  .hero-visual-card--accent {
+    margin-top: 12px;
+  }
+
+  .auth-photo-overlay {
+    max-width: none;
+    padding: 20px;
+  }
+
+  .auth-surface {
+    border-left: 0;
+    border-top: 1px solid rgba(188, 208, 195, 0.7);
+  }
+
+  .auth-photo-caption-list span {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-visual-orbit {
+    display: none;
   }
 }
