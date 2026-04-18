@@ -2,6 +2,7 @@ window.PDCMS = window.PDCMS || {};
 
 window.PDCMS.initializePatientSearch = () => {
   const apiUrl = window.PDCMS.productConfig?.apiUrl;
+  const auth = window.PDCMS.auth;
   const form = document.querySelector("[data-patient-search-form]");
   const input = document.querySelector("[data-patient-search-input]");
   const resetButton = document.querySelector("[data-patient-search-reset]");
@@ -89,7 +90,7 @@ window.PDCMS.initializePatientSearch = () => {
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
-        ...(options.headers || {})
+        ...(auth?.buildAuthHeaders(options.headers || {}) || options.headers || {})
       },
       ...options
     });
@@ -443,5 +444,12 @@ window.PDCMS.initializePatientSearch = () => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  window.PDCMS.initializePatientSearch?.();
+  void (async () => {
+    const isAllowed = (await window.PDCMS.auth?.requireStaffSession?.()) ?? true;
+    if (!isAllowed) {
+      return;
+    }
+
+    window.PDCMS.initializePatientSearch?.();
+  })();
 });

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hospital staff login and account creation for the PDCMS inpatient control desk.">
+  <title>Staff Login | Hospital Inpatient Staff Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <div class="auth-shell" data-auth-page>
+    <section class="auth-hero">
+      <div class="auth-hero-copy">
+        <p class="eyebrow">Hospital staff access</p>
+        <h1>Sign in to the inpatient control desk or create a new staff account.</h1>
+        <p class="hero-copy">
+          All staff profiles currently receive access to every inpatient section. Role-based access controls can be layered in later without changing the login experience.
+        </p>
+      </div>
+
+      <div class="info-panel auth-role-panel">
+        <p class="section-label">Available staff profiles</p>
+        <ul class="sidebar-list">
+          <li>Inpatient department admin / reception team</li>
+          <li>Nurses</li>
+          <li>Doctors</li>
+          <li>Consultants</li>
+          <li>Lab / report staff</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="surface auth-surface">
+      <div class="auth-tab-list" role="tablist" aria-label="Staff account actions">
+        <button class="auth-tab is-active" type="button" role="tab" aria-selected="true" data-auth-tab="login">Login</button>
+        <button class="auth-tab" type="button" role="tab" aria-selected="false" data-auth-tab="register">Create account</button>
+      </div>
+
+      <div class="auth-panel-grid">
+        <section class="auth-panel" data-auth-panel="login">
+          <div class="section-head compact">
+            <div>
+              <p class="section-label">Login</p>
+              <h3>Hospital staff login</h3>
+            </div>
+          </div>
+
+          <form class="form-grid auth-form" data-login-form>
+            <div class="field field-span-full">
+              <label for="login-email">Email address</label>
+              <input id="login-email" name="email" type="email" autocomplete="username" placeholder="staff@hospital.com" required>
+            </div>
+            <div class="field field-span-full">
+              <label for="login-password">Password</label>
+              <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            </div>
+            <div class="field field-span-full">
+              <label for="login-role">Staff profile</label>
+              <select id="login-role" name="role" data-staff-role-select required></select>
+            </div>
+            <div class="form-actions field-span-full">
+              <p class="form-status" data-login-status aria-live="polite"></p>
+              <button class="primary-btn" type="submit">Sign in</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="auth-panel" data-auth-panel="register" hidden>
+          <div class="section-head compact">
+            <div>
+              <p class="section-label">Create account</p>
+              <h3>Create a hospital staff account</h3>
+            </div>
+          </div>
+
+          <form class="form-grid auth-form" data-register-form>
+            <div class="field field-span-full">
+              <label for="register-full-name">Full name</label>
+              <input id="register-full-name" name="fullName" type="text" autocomplete="name" placeholder="Vikram Patel" required>
+            </div>
+            <div class="field field-span-full">
+              <label for="register-email">Email address</label>
+              <input id="register-email" name="email" type="email" autocomplete="email" placeholder="staff@hospital.com" required>
+            </div>
+            <div class="field field-span-full">
+              <label for="register-password">Password</label>
+              <input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="Minimum 8 characters" required>
+            </div>
+            <div class="field field-span-full">
+              <label for="register-role">Staff profile</label>
+              <select id="register-role" name="role" data-staff-role-select required></select>
+            </div>
+            <div class="form-actions field-span-full">
+              <p class="form-status" data-register-status aria-live="polite"></p>
+              <button class="primary-btn" type="submit">Create account</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script src="src/scripts/product/runtime-config.js"></script>
+  <script src="src/scripts/product/config.js"></script>
+  <script src="src/scripts/product/auth.js"></script>
+  <script src="src/scripts/ui/auth-page.js"></script>
+</body>
+</html>

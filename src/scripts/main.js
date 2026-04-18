@@ -1,20 +1,30 @@
 window.PDCMS = window.PDCMS || {};
 
 document.addEventListener("DOMContentLoaded", () => {
-  const {
-    productConfig,
-    initializePanelNavigation,
-    initializeRevealObserver,
-    initializeAdmissions,
-    initializeWorkload
-  } = window.PDCMS;
+  void (async () => {
+    const {
+      auth,
+      productConfig,
+      initializePanelNavigation,
+      initializeRevealObserver,
+      initializeAdmissions,
+      initializeWorkload
+    } = window.PDCMS;
 
-  if (!productConfig || !initializePanelNavigation || !initializeRevealObserver) {
-    return;
-  }
+    if (!productConfig || !initializePanelNavigation || !initializeRevealObserver) {
+      return;
+    }
 
-  initializePanelNavigation(productConfig);
-  initializeRevealObserver(productConfig.revealSelector);
-  initializeAdmissions?.();
-  initializeWorkload?.();
+    if (auth?.requireStaffSession) {
+      const isAllowed = await auth.requireStaffSession();
+      if (!isAllowed) {
+        return;
+      }
+    }
+
+    initializePanelNavigation(productConfig);
+    initializeRevealObserver(productConfig.revealSelector);
+    initializeAdmissions?.();
+    initializeWorkload?.();
+  })();
 });

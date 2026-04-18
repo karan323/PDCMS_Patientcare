@@ -9,6 +9,35 @@
   align-items: start;
 }
 
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
+  gap: 28px;
+  padding: 24px;
+}
+
+.auth-hero {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+.auth-surface {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+.auth-panel-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .sidebar,
 .surface,
 .hero,

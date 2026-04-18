@@ -123,6 +123,7 @@ const getEditCopy = fullName => ({
 
 window.PDCMS.initializeAdmissions = () => {
   const apiUrl = window.PDCMS.productConfig?.apiUrl;
+  const auth = window.PDCMS.auth;
   const form = document.querySelector("[data-admission-form]");
   const status = document.querySelector("[data-admission-status]");
   const admittedMetric = document.querySelector("[data-dashboard-admitted]");
@@ -214,7 +215,7 @@ window.PDCMS.initializeAdmissions = () => {
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
-        ...(options.headers || {})
+        ...(auth?.buildAuthHeaders(options.headers || {}) || options.headers || {})
       },
       ...options
     });

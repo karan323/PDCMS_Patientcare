@@ -92,7 +92,7 @@ The seeder tops the active backend up to 120 admissions by default. Use `npm run
 http://localhost:3000
 ```
 
-When `DATABASE_URL` is not set, the app creates `data/workloads.json` and `data/admissions.json` automatically.
+When `DATABASE_URL` is not set, the app creates `data/workloads.json`, `data/admissions.json`, and `data/staffUsers.json` automatically.
 
 ## Environment
 
@@ -100,6 +100,18 @@ Copy `.env.example` if you want local overrides.
 
 - `PORT`: server port, defaults to `3000`
 - `DATABASE_URL`: PostgreSQL connection string for shared or production environments
+- `AUTH_TOKEN_SECRET`: secret used to sign staff login tokens in non-local environments
+
+## Staff Access
+
+- `/login` serves the hospital staff login and account creation screen
+- staff profiles available today:
+  - inpatient department admin / reception team
+  - nurses
+  - doctors
+  - consultants
+  - lab / report staff
+- all staff profiles currently have access to every section; role-based restrictions can be layered in later
 
 ## API
 

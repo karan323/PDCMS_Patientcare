@@ -1,8 +1,10 @@
 const path = require("node:path");
 const { Pool } = require("pg");
 const { FileAdmissionStore } = require("./fileAdmissionStore");
+const { FileStaffUserStore } = require("./fileStaffUserStore");
 const { FileWorkloadStore } = require("./fileWorkloadStore");
 const { PostgresAdmissionStore } = require("./postgresAdmissionStore");
+const { PostgresStaffUserStore } = require("./postgresStaffUserStore");
 const { PostgresWorkloadStore } = require("./postgresWorkloadStore");
 
 const readSslConfig = () => {
@@ -31,24 +33,28 @@ const createDataStores = async () => {
 
     const workloadStore = new PostgresWorkloadStore(pool);
     const admissionStore = new PostgresAdmissionStore(pool);
-    await Promise.all([workloadStore.initialize(), admissionStore.initialize()]);
+    const staffUserStore = new PostgresStaffUserStore(pool);
+    await Promise.all([workloadStore.initialize(), admissionStore.initialize(), staffUserStore.initialize()]);
 
     return {
       kind: "postgres",
       workloadStore,
-      admissionStore
+      admissionStore,
+      staffUserStore
     };
   }
 
   const dataDirectory = path.resolve(process.cwd(), "data");
   const workloadStore = new FileWorkloadStore(path.join(dataDirectory, "workloads.json"));
   const admissionStore = new FileAdmissionStore(path.join(dataDirectory, "admissions.json"));
-  await Promise.all([workloadStore.initialize(), admissionStore.initialize()]);
+  const staffUserStore = new FileStaffUserStore(path.join(dataDirectory, "staffUsers.json"));
+  await Promise.all([workloadStore.initialize(), admissionStore.initialize(), staffUserStore.initialize()]);
 
   return {
     kind: "file",
     workloadStore,
-    admissionStore
+    admissionStore,
+    staffUserStore
   };
 };
 

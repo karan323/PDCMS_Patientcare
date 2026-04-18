@@ -6,17 +6,20 @@ const path = require("node:path");
 
 const { createApp } = require("../src/server/app");
 const { FileAdmissionStore } = require("../src/server/store/fileAdmissionStore");
+const { FileStaffUserStore } = require("../src/server/store/fileStaffUserStore");
 const { FileWorkloadStore } = require("../src/server/store/fileWorkloadStore");
 
 const createTestServer = async () => {
   const tempDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "pdcms-api-"));
   const workloadStore = new FileWorkloadStore(path.join(tempDirectory, "workloads.json"));
   const admissionStore = new FileAdmissionStore(path.join(tempDirectory, "admissions.json"));
-  await Promise.all([workloadStore.initialize(), admissionStore.initialize()]);
+  const staffUserStore = new FileStaffUserStore(path.join(tempDirectory, "staffUsers.json"));
+  await Promise.all([workloadStore.initialize(), admissionStore.initialize(), staffUserStore.initialize()]);
 
   const app = createApp({
     workloadStore,
     admissionStore,
+    staffUserStore,
     storageKind: "file-test"
   });
 
@@ -24,9 +27,47 @@ const createTestServer = async () => {
   await new Promise(resolve => server.once("listening", resolve));
 
   const port = server.address().port;
+  let authToken = null;
+
+  const createStaffSession = async () => {
+    if (authToken) {
+      return authToken;
+    }
+
+    const registerResponse = await fetch(`http://127.0.0.1:${port}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: "Test Staff",
+        email: "staff@example.com",
+        password: "password123",
+        role: "Doctors"
+      })
+    });
+    const payload = await registerResponse.json();
+
+    assert.equal(registerResponse.status, 201);
+    authToken = payload.token;
+    return authToken;
+  };
+
+  const fetchAsStaff = async (pathName, options = {}) => {
+    const token = await createStaffSession();
+    const headers = {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`
+    };
+
+    return fetch(`http://127.0.0.1:${port}${pathName}`, {
+      ...options,
+      headers
+    });
+  };
 
   return {
     baseUrl: `http://127.0.0.1:${port}`,
+    createStaffSession,
+    fetchAsStaff,
     close: async () => {
       await new Promise(resolve => server.close(resolve));
       await fs.rm(tempDirectory, { recursive: true, force: true });
@@ -53,7 +94,7 @@ test("workload flow persists checklist items by date", async () => {
   const context = await createTestServer();
 
   try {
-    const createdResponse = await fetch(`${context.baseUrl}/api/workloads`, {
+    const createdResponse = await context.fetchAsStaff("/api/workloads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -66,7 +107,7 @@ test("workload flow persists checklist items by date", async () => {
     assert.equal(createdResponse.status, 201);
     assert.equal(created.done, false);
 
-    const updateResponse = await fetch(`${context.baseUrl}/api/workloads/${created.id}`, {
+    const updateResponse = await context.fetchAsStaff(`/api/workloads/${created.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ done: true })
@@ -76,7 +117,7 @@ test("workload flow persists checklist items by date", async () => {
     assert.equal(updateResponse.status, 200);
     assert.equal(updated.done, true);
 
-    const listResponse = await fetch(`${context.baseUrl}/api/workloads?date=2026-04-12`);
+    const listResponse = await context.fetchAsStaff("/api/workloads?date=2026-04-12");
     const listed = await listResponse.json();
 
     assert.equal(listResponse.status, 200);
@@ -91,7 +132,7 @@ test("admission flow saves a record and updates dashboard summary", async () => 
   const context = await createTestServer();
 
   try {
-    const createResponse = await fetch(`${context.baseUrl}/api/admissions`, {
+    const createResponse = await context.fetchAsStaff("/api/admissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -114,14 +155,14 @@ test("admission flow saves a record and updates dashboard summary", async () => 
     assert.equal(admission.assignedNurse, "Nurse Priya");
     assert.equal(admission.reportVisibleToPatient, true);
 
-    const listResponse = await fetch(`${context.baseUrl}/api/admissions?limit=5`);
+    const listResponse = await context.fetchAsStaff("/api/admissions?limit=5");
     const listed = await listResponse.json();
 
     assert.equal(listResponse.status, 200);
     assert.equal(listed.items.length, 1);
     assert.equal(listed.items[0].doctor, "Dr. Karim");
 
-    const summaryResponse = await fetch(`${context.baseUrl}/api/dashboard/summary`);
+    const summaryResponse = await context.fetchAsStaff("/api/dashboard/summary");
     const summary = await summaryResponse.json();
 
     assert.equal(summaryResponse.status, 200);
@@ -136,7 +177,7 @@ test("admission validation rejects incomplete payloads", async () => {
   const context = await createTestServer();
 
   try {
-    const response = await fetch(`${context.baseUrl}/api/admissions`, {
+    const response = await context.fetchAsStaff("/api/admissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -157,7 +198,7 @@ test("admission flow supports editing an existing record", async () => {
   const context = await createTestServer();
 
   try {
-    const createResponse = await fetch(`${context.baseUrl}/api/admissions`, {
+    const createResponse = await context.fetchAsStaff("/api/admissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -174,7 +215,7 @@ test("admission flow supports editing an existing record", async () => {
 
     assert.equal(createResponse.status, 201);
 
-    const updateResponse = await fetch(`${context.baseUrl}/api/admissions/${created.id}`, {
+    const updateResponse = await context.fetchAsStaff(`/api/admissions/${created.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -217,7 +258,7 @@ test("admission flow supports editing an existing record", async () => {
     assert.equal(updated.assignedNurse, "Nurse Asha");
     assert.equal(updated.reportVisibleToPatient, true);
 
-    const detailResponse = await fetch(`${context.baseUrl}/api/admissions/${created.id}`);
+    const detailResponse = await context.fetchAsStaff(`/api/admissions/${created.id}`);
     const detail = await detailResponse.json();
 
     assert.equal(detailResponse.status, 200);
@@ -237,7 +278,7 @@ test("admission list supports loading all records and structured server-side fil
   const context = await createTestServer();
 
   try {
-    const firstCreateResponse = await fetch(`${context.baseUrl}/api/admissions`, {
+    const firstCreateResponse = await context.fetchAsStaff("/api/admissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -250,7 +291,7 @@ test("admission list supports loading all records and structured server-side fil
       })
     });
 
-    const secondCreateResponse = await fetch(`${context.baseUrl}/api/admissions`, {
+    const secondCreateResponse = await context.fetchAsStaff("/api/admissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -266,62 +307,62 @@ test("admission list supports loading all records and structured server-side fil
     assert.equal(firstCreateResponse.status, 201);
     assert.equal(secondCreateResponse.status, 201);
 
-    const allResponse = await fetch(`${context.baseUrl}/api/admissions?all=true`);
+    const allResponse = await context.fetchAsStaff("/api/admissions?all=true");
     const allPayload = await allResponse.json();
 
     assert.equal(allResponse.status, 200);
     assert.equal(allPayload.items.length, 2);
 
-    const defaultSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=morgan`);
+    const defaultSearchResponse = await context.fetchAsStaff("/api/admissions?q=morgan");
     const defaultSearchPayload = await defaultSearchResponse.json();
 
     assert.equal(defaultSearchResponse.status, 200);
     assert.equal(defaultSearchPayload.items.length, 1);
     assert.equal(defaultSearchPayload.items[0].fullName, "Morgan Lee");
 
-    const patientIdFilterResponse = await fetch(`${context.baseUrl}/api/admissions?patientId=AB1234`);
+    const patientIdFilterResponse = await context.fetchAsStaff("/api/admissions?patientId=AB1234");
     const patientIdFilterPayload = await patientIdFilterResponse.json();
 
     assert.equal(patientIdFilterResponse.status, 200);
     assert.equal(patientIdFilterPayload.items.length, 1);
     assert.equal(patientIdFilterPayload.items[0].fullName, "Taylor Reed");
 
-    const doctorFilterResponse = await fetch(`${context.baseUrl}/api/admissions?doctor=nair`);
+    const doctorFilterResponse = await context.fetchAsStaff("/api/admissions?doctor=nair");
     const doctorFilterPayload = await doctorFilterResponse.json();
 
     assert.equal(doctorFilterResponse.status, 200);
     assert.equal(doctorFilterPayload.items.length, 1);
     assert.equal(doctorFilterPayload.items[0].fullName, "Morgan Lee");
 
-    const singleDateFilterResponse = await fetch(`${context.baseUrl}/api/admissions?entryDate=2026-04-12`);
+    const singleDateFilterResponse = await context.fetchAsStaff("/api/admissions?entryDate=2026-04-12");
     const singleDateFilterPayload = await singleDateFilterResponse.json();
 
     assert.equal(singleDateFilterResponse.status, 200);
     assert.equal(singleDateFilterPayload.items.length, 1);
     assert.equal(singleDateFilterPayload.items[0].fullName, "Taylor Reed");
 
-    const rangeFilterResponse = await fetch(
-      `${context.baseUrl}/api/admissions?entryDateFrom=2026-04-12&entryDateTo=2026-04-13`
+    const rangeFilterResponse = await context.fetchAsStaff(
+      "/api/admissions?entryDateFrom=2026-04-12&entryDateTo=2026-04-13"
     );
     const rangeFilterPayload = await rangeFilterResponse.json();
 
     assert.equal(rangeFilterResponse.status, 200);
     assert.equal(rangeFilterPayload.items.length, 2);
 
-    const unsupportedDefaultSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=neurology`);
+    const unsupportedDefaultSearchResponse = await context.fetchAsStaff("/api/admissions?q=neurology");
     const unsupportedDefaultSearchPayload = await unsupportedDefaultSearchResponse.json();
 
     assert.equal(unsupportedDefaultSearchResponse.status, 200);
     assert.equal(unsupportedDefaultSearchPayload.items.length, 0);
 
-    const broadDepartmentSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=*neurology`);
+    const broadDepartmentSearchResponse = await context.fetchAsStaff("/api/admissions?q=*neurology");
     const broadDepartmentSearchPayload = await broadDepartmentSearchResponse.json();
 
     assert.equal(broadDepartmentSearchResponse.status, 200);
     assert.equal(broadDepartmentSearchPayload.items.length, 1);
     assert.equal(broadDepartmentSearchPayload.items[0].fullName, "Morgan Lee");
 
-    const broadDoctorSearchResponse = await fetch(`${context.baseUrl}/api/admissions?q=*karim`);
+    const broadDoctorSearchResponse = await context.fetchAsStaff("/api/admissions?q=*karim");
     const broadDoctorSearchPayload = await broadDoctorSearchResponse.json();
 
     assert.equal(broadDoctorSearchResponse.status, 200);
@@ -336,11 +377,65 @@ test("admission list rejects invalid entry date combinations", async () => {
   const context = await createTestServer();
 
   try {
-    const response = await fetch(`${context.baseUrl}/api/admissions?entryDate=2026-04-12&entryDateTo=2026-04-13`);
+    const response = await context.fetchAsStaff("/api/admissions?entryDate=2026-04-12&entryDateTo=2026-04-13");
     const payload = await response.json();
 
     assert.equal(response.status, 400);
     assert.match(payload.error, /Use either a single entry date or a date range/);
+  } finally {
+    await context.close();
+  }
+});
+
+test("staff auth creates an account, logs in, and protects inpatient endpoints", async () => {
+  const context = await createTestServer();
+
+  try {
+    const unauthenticatedResponse = await fetch(`${context.baseUrl}/api/dashboard/summary`);
+    const unauthenticatedPayload = await unauthenticatedResponse.json();
+
+    assert.equal(unauthenticatedResponse.status, 401);
+    assert.match(unauthenticatedPayload.error, /Staff login is required/);
+
+    const registerResponse = await fetch(`${context.baseUrl}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: "Asha Menon",
+        email: "asha.menon@example.com",
+        password: "securepass123",
+        role: "Nurses"
+      })
+    });
+    const registered = await registerResponse.json();
+
+    assert.equal(registerResponse.status, 201);
+    assert.equal(registered.user.role, "Nurses");
+    assert.ok(registered.token);
+
+    const loginResponse = await fetch(`${context.baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "asha.menon@example.com",
+        password: "securepass123",
+        role: "Nurses"
+      })
+    });
+    const loggedIn = await loginResponse.json();
+
+    assert.equal(loginResponse.status, 200);
+    assert.equal(loggedIn.user.fullName, "Asha Menon");
+
+    const sessionResponse = await fetch(`${context.baseUrl}/api/auth/session`, {
+      headers: {
+        Authorization: `Bearer ${loggedIn.token}`
+      }
+    });
+    const sessionPayload = await sessionResponse.json();
+
+    assert.equal(sessionResponse.status, 200);
+    assert.equal(sessionPayload.user.email, "asha.menon@example.com");
   } finally {
     await context.close();
   }

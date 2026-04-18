@@ -2,6 +2,7 @@ window.PDCMS = window.PDCMS || {};
 
 window.PDCMS.initializeWorkload = () => {
   const apiUrl = window.PDCMS.productConfig?.apiUrl;
+  const auth = window.PDCMS.auth;
   const panel = document.querySelector(".hero-workload");
 
   if (!panel || typeof apiUrl !== "function") {
@@ -109,7 +110,7 @@ window.PDCMS.initializeWorkload = () => {
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
-        ...(options.headers || {})
+        ...(auth?.buildAuthHeaders(options.headers || {}) || options.headers || {})
       },
       ...options
     });
