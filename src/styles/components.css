@@ -771,6 +771,18 @@ textarea {
   font-size: 0.95rem;
 }
 
+.checkbox-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.checkbox-line input[type="checkbox"] {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
 .document-zone {
   display: grid;
   gap: 14px;
