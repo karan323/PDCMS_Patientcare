@@ -73,6 +73,11 @@
   color: var(--muted);
 }
 
+.sidebar-list a {
+  color: inherit;
+  font-weight: 700;
+}
+
 .hero-actions {
   display: flex;
   flex-direction: column;
@@ -550,6 +555,54 @@
   background: rgba(255, 255, 255, 0.7);
 }
 
+.patient-context-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.patient-context-strip strong,
+.patient-context-strip span {
+  display: block;
+}
+
+.patient-context-strip strong {
+  margin: 8px 0 6px;
+  font-size: 1.2rem;
+}
+
+.summary-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(244, 249, 246, 0.88);
+}
+
+.summary-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.summary-card strong {
+  font-size: 0.95rem;
+}
+
 .panel-head {
   display: flex;
   justify-content: space-between;
@@ -814,13 +867,35 @@ textarea {
 }
 
 .toggle-list,
-.check-grid {
+.check-grid,
+.checklist-panel {
   display: grid;
   gap: 10px;
 }
 
 .check-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.checklist-panel {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.checklist-panel label,
+.toggle-list label,
+.check-grid label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+
+.mar-form {
   margin-bottom: 16px;
 }
 
@@ -1165,6 +1240,92 @@ textarea {
   max-width: 60ch;
   color: var(--muted);
   line-height: 1.7;
+}
+
+.report-collection {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 22px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(240, 247, 242, 0.84));
+}
+
+.report-collection-actions,
+.report-collection-head,
+.report-entry-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.report-collection-actions .form-status {
+  margin: 0;
+  min-height: 1.4rem;
+}
+
+.report-collection-head h4,
+.report-collection-head p,
+.report-entry-head h5,
+.report-entry-head p,
+.report-entry-remarks {
+  margin: 0;
+}
+
+.report-collection-head p:last-child,
+.report-entry-head p,
+.report-entry-remarks {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.report-entry-list {
+  display: grid;
+  gap: 14px;
+}
+
+.report-entry {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.report-entry-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(47, 127, 104, 0.12);
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.report-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 12px;
+}
+
+.report-entry-grid div {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(244, 249, 246, 0.92);
+}
+
+.report-entry-grid span {
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .field-note {

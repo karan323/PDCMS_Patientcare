@@ -41,7 +41,7 @@ const createTestServer = async () => {
         fullName: "Test Staff",
         email: "staff@example.com",
         password: "password123",
-        role: "Doctors"
+        role: "Head admin / super admin"
       })
     });
     const payload = await registerResponse.json();
@@ -137,13 +137,39 @@ test("admission flow saves a record and updates dashboard summary", async () => 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         fullName: "Taylor Reed",
+        dateOfBirth: "1985-04-11",
         admissionDate: "2026-04-12",
+        admissionTime: "09:15",
         department: "Cardiology",
         status: "Discharge planned",
         age: 41,
+        emergencyContact: "Jordan Reed",
         doctor: "Dr. Karim",
+        room: "401",
+        bedNumber: "B-1",
+        caregiverAuthorized: true,
+        caregiverName: "Jordan Reed",
+        caregiverRelationship: "Spouse",
         assignedNurse: "Nurse Priya",
-        reportVisibleToPatient: true
+        reports: [
+          {
+            reportName: "Chest X-ray",
+            reportType: "Radiology reports",
+            orderedDate: "2026-04-12",
+            reportStatus: "Available",
+            reportReviewedBy: "Dr. Karim",
+            reportReleaseStatus: "Reviewed for release",
+            reportFileReference: "chest-xray.pdf",
+            reportVisibleToPatient: true
+          },
+          {
+            reportName: "Blood culture",
+            reportType: "Pathology reports",
+            orderedDate: "2026-04-13",
+            reportStatus: "In progress",
+            reportVisibleToPatient: false
+          }
+        ]
       })
     });
     const admission = await createResponse.json();
@@ -153,7 +179,13 @@ test("admission flow saves a record and updates dashboard summary", async () => 
     assert.match(admission.patientId, /^PT-/);
     assert.match(admission.admissionId, /^ADM-/);
     assert.equal(admission.assignedNurse, "Nurse Priya");
-    assert.equal(admission.reportVisibleToPatient, true);
+    assert.equal(admission.patientPortalUsername, admission.patientId);
+    assert.match(admission.patientPortalPassword, /^(?=.*[!@#$%&*?])[1-9A-Za-z!@#$%&*?]{8,10}$/);
+    assert.equal(admission.reports.length, 2);
+    assert.equal(admission.reports[0].reportType, "Radiology reports");
+    assert.equal(admission.reports[1].reportType, "Pathology reports");
+    assert.equal(admission.reportName, "Blood culture");
+    assert.equal(admission.reportVisibleToPatient, false);
 
     const listResponse = await context.fetchAsStaff("/api/admissions?limit=5");
     const listed = await listResponse.json();
@@ -205,10 +237,15 @@ test("admission flow supports editing an existing record", async () => {
         patientId: "AB1234",
         admissionId: "ADM4321",
         fullName: "Karan Mistry",
+        dateOfBirth: "1994-02-18",
         admissionDate: "2026-04-12",
+        admissionTime: "08:30",
         department: "Cardiology",
         status: "Observation",
-        doctor: "Dr. Raven"
+        emergencyContact: "Family Contact",
+        doctor: "Dr. Raven",
+        room: "204",
+        bedNumber: "B-2"
       })
     });
     const created = await createResponse.json();
@@ -243,7 +280,27 @@ test("admission flow supports editing an existing record", async () => {
         assignedNurse: "Nurse Asha",
         activityDate: "2026-04-16",
         consultTime: "14:15",
-        reportVisibleToPatient: true,
+        reports: [
+          {
+            reportName: "CT Brain",
+            reportType: "Radiology reports",
+            orderedDate: "2026-04-15",
+            scheduledDate: "2026-04-16",
+            reportStatus: "Available",
+            resultDate: "2026-04-17",
+            reportReviewedBy: "Dr. Nair",
+            reportReleaseStatus: "Reviewed for release",
+            reportFileReference: "ct-brain.pdf",
+            reportVisibleToPatient: true
+          },
+          {
+            reportName: "CSF culture",
+            reportType: "Pathology reports",
+            orderedDate: "2026-04-16",
+            reportStatus: "Scheduled",
+            reportVisibleToPatient: false
+          }
+        ],
         notePatientFacing: true,
         approvalFlow: "Head nurse review pending"
       })
@@ -256,7 +313,9 @@ test("admission flow supports editing an existing record", async () => {
     assert.equal(updated.doctor, "Dr. Nair");
     assert.equal(updated.admissionDate, "2026-04-15");
     assert.equal(updated.assignedNurse, "Nurse Asha");
-    assert.equal(updated.reportVisibleToPatient, true);
+    assert.equal(updated.reports.length, 2);
+    assert.equal(updated.reportName, "CSF culture");
+    assert.equal(updated.reportVisibleToPatient, false);
 
     const detailResponse = await context.fetchAsStaff(`/api/admissions/${created.id}`);
     const detail = await detailResponse.json();
@@ -267,6 +326,8 @@ test("admission flow supports editing an existing record", async () => {
     assert.equal(detail.status, "Stable");
     assert.equal(detail.activityDate, "2026-04-16");
     assert.equal(detail.consultTime, "14:15");
+    assert.equal(detail.reports[0].reportName, "CT Brain");
+    assert.equal(detail.reports[1].reportType, "Pathology reports");
     assert.equal(detail.notePatientFacing, true);
     assert.equal(detail.approvalFlow, "Head nurse review pending");
   } finally {
@@ -284,10 +345,15 @@ test("admission list supports loading all records and structured server-side fil
       body: JSON.stringify({
         patientId: "AB1234",
         fullName: "Taylor Reed",
+        dateOfBirth: "1980-03-01",
         admissionDate: "2026-04-12",
+        admissionTime: "10:00",
         department: "Cardiology",
         status: "Stable",
-        doctor: "Dr. Karim"
+        emergencyContact: "Family Contact 1",
+        doctor: "Dr. Karim",
+        room: "501",
+        bedNumber: "B-1"
       })
     });
 
@@ -297,10 +363,15 @@ test("admission list supports loading all records and structured server-side fil
       body: JSON.stringify({
         patientId: "CD5678",
         fullName: "Morgan Lee",
+        dateOfBirth: "1979-07-15",
         admissionDate: "2026-04-13",
+        admissionTime: "11:00",
         department: "Neurology",
         status: "Observation",
-        doctor: "Dr. Nair"
+        emergencyContact: "Family Contact 2",
+        doctor: "Dr. Nair",
+        room: "502",
+        bedNumber: "B-2"
       })
     });
 
@@ -397,10 +468,27 @@ test("staff auth creates an account, logs in, and protects inpatient endpoints",
     assert.equal(unauthenticatedResponse.status, 401);
     assert.match(unauthenticatedPayload.error, /Staff login is required/);
 
+    const headAdminResponse = await fetch(`${context.baseUrl}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: "Head Admin",
+        email: "head.admin@example.com",
+        password: "securepass123",
+        role: "Head admin / super admin"
+      })
+    });
+    const headAdmin = await headAdminResponse.json();
+
+    assert.equal(headAdminResponse.status, 201);
+    assert.equal(headAdmin.user.role, "Head admin / super admin");
+
     const registerResponse = await fetch(`${context.baseUrl}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        adminEmail: "head.admin@example.com",
+        adminPassword: "securepass123",
         fullName: "Asha Menon",
         email: "asha.menon@example.com",
         password: "securepass123",

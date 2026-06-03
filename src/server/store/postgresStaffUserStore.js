@@ -49,6 +49,11 @@ class PostgresStaffUserStore {
     return result.rows[0];
   }
 
+  async count() {
+    const result = await this.pool.query("SELECT COUNT(*)::int AS count FROM staff_users");
+    return result.rows[0]?.count || 0;
+  }
+
   async getByEmail(email) {
     const result = await this.pool.query(
       `

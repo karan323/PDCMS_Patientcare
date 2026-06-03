@@ -1,11 +1,17 @@
 window.PDCMS = window.PDCMS || {};
 
 const STAFF_ROLE_OPTIONS = [
+  "Head admin / super admin",
+  "Super Admin",
+  "Inpatient coordinator / ward staff",
   "Inpatient department admin / reception team",
+  "Reception / scheduling",
   "Nurses",
   "Doctors",
   "Consultants",
-  "Lab / report staff"
+  "Diagnostics / lab user",
+  "Lab / report staff",
+  "Privacy / compliance reviewer"
 ];
 
 const AUTH_STORAGE_KEY = "pdcms_staff_session";

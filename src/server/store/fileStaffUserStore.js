@@ -31,6 +31,11 @@ class FileStaffUserStore {
     return nextUser;
   }
 
+  async count() {
+    const data = await this.#read();
+    return data.staffUsers.length;
+  }
+
   async getByEmail(email) {
     const data = await this.#read();
     return data.staffUsers.find(item => item.email === email) || null;

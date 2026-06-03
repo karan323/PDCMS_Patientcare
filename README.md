@@ -20,6 +20,10 @@ Hospital inpatient operations prototype with a static frontend and a Node backen
 - Day-by-day workload checklist with backend persistence
 - Admission registration backend with generated patient/admission IDs
 - Dashboard summary counts backed by real admission data
+- Expanded requirements coverage for admission, patient workspace, care notes, activity, medication/MAR, diagnostics, scheduling, discharge, documents, notifications, audit, and governance
+- Head Admin-gated staff account creation after first setup
+- Caregiver portal credential generation when consented access is authorized
+- Admission duplicate checks, room/bed conflict checks, report review gating, discharge checklist gating, audit events, and field history
 - Same-origin serving so the UI and API deploy as one service
 - API tests covering health, workloads, admissions, and dashboard summary
 
@@ -105,13 +109,24 @@ Copy `.env.example` if you want local overrides.
 ## Staff Access
 
 - `/login` serves the hospital staff login and account creation screen
+- the first account must be created as `Head admin / super admin`
+- after first setup, creating additional staff accounts requires Head Admin email/password authorization
 - staff profiles available today:
+  - Head admin / super admin
+  - Super Admin
+  - inpatient coordinator / ward staff
   - inpatient department admin / reception team
+  - reception / scheduling
   - nurses
   - doctors
   - consultants
+  - diagnostics / lab user
   - lab / report staff
-- all staff profiles currently have access to every section; role-based restrictions can be layered in later
+  - privacy / compliance reviewer
+
+## Requirements Coverage
+
+The source BRD/FRS is in `Req/Hospital_Inpatient_Web_Requirements_Sheet.docx`. The implementation coverage matrix is in [docs/requirements-coverage.md](docs/requirements-coverage.md).
 
 ## API
 

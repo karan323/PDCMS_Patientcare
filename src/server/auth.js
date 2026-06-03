@@ -1,11 +1,17 @@
 const crypto = require("node:crypto");
 
 const STAFF_ROLE_OPTIONS = [
+  "Head admin / super admin",
+  "Super Admin",
+  "Inpatient coordinator / ward staff",
   "Inpatient department admin / reception team",
+  "Reception / scheduling",
   "Nurses",
   "Doctors",
   "Consultants",
-  "Lab / report staff"
+  "Diagnostics / lab user",
+  "Lab / report staff",
+  "Privacy / compliance reviewer"
 ];
 
 const PASSWORD_MIN_LENGTH = 8;
@@ -53,6 +59,8 @@ const buildSessionUser = staffUser => ({
   email: staffUser.email,
   role: staffUser.role
 });
+
+const isHeadAdminRole = role => ["Head admin / super admin", "Super Admin"].includes(role);
 
 const createAuthToken = staffUser => {
   const payload = {
@@ -103,6 +111,8 @@ const validateStaffRegistrationPayload = payload => {
   const email = normalizeEmail(payload?.email);
   const password = cleanString(payload?.password);
   const role = cleanString(payload?.role);
+  const adminEmail = normalizeEmail(payload?.adminEmail);
+  const adminPassword = cleanString(payload?.adminPassword);
 
   if (!fullName) {
     errors.push("Full name is required.");
@@ -129,7 +139,9 @@ const validateStaffRegistrationPayload = payload => {
       fullName,
       email,
       password,
-      role
+      role,
+      adminEmail,
+      adminPassword
     }
   };
 };
@@ -181,6 +193,7 @@ module.exports = {
   buildSessionUser,
   createAuthToken,
   createPasswordHash,
+  isHeadAdminRole,
   readBearerToken,
   validateStaffLoginPayload,
   validateStaffRegistrationPayload,
