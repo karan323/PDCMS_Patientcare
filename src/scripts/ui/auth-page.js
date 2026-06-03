@@ -17,6 +17,7 @@ window.PDCMS.initializeAuthPage = () => {
   const loginStatus = document.querySelector("[data-login-status]");
   const registerStatus = document.querySelector("[data-register-status]");
   const nextUrl = new URLSearchParams(window.location.search).get("next") || "/";
+  const isCreateAccountPath = window.location.pathname.includes("create-account");
 
   if (!loginForm || !registerForm || !loginStatus || !registerStatus || tabs.length === 0 || panels.length === 0) {
     return;
@@ -88,7 +89,7 @@ window.PDCMS.initializeAuthPage = () => {
   };
 
   const openRequestedTab = () => {
-    if (window.location.pathname.includes("create-account")) {
+    if (isCreateAccountPath) {
       setActiveTab("register");
       return;
     }
@@ -134,6 +135,8 @@ window.PDCMS.initializeAuthPage = () => {
     event.preventDefault();
 
     const payload = {
+      adminEmail: registerForm.elements["adminEmail"].value,
+      adminPassword: registerForm.elements["adminPassword"].value,
       fullName: registerForm.elements["fullName"].value,
       email: registerForm.elements["email"].value,
       password: registerForm.elements["password"].value,
@@ -163,7 +166,7 @@ window.PDCMS.initializeAuthPage = () => {
   openRequestedTab();
 
   const existingSession = auth.readStoredSession();
-  if (existingSession?.token) {
+  if (existingSession?.token && !isCreateAccountPath) {
     void requestJson(apiUrl("/api/auth/session"), {
       headers: auth.buildAuthHeaders()
     })

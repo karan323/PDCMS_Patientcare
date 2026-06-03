@@ -43,10 +43,12 @@
 
   .metrics-grid,
   .availability-grid,
+  .summary-card-grid,
   .form-grid,
   .auth-form,
   .patient-search-filter-grid,
-  .patient-record-grid {
+  .patient-record-grid,
+  .checklist-panel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -60,7 +62,11 @@
   .subsection-grid,
   .check-grid,
   .patient-search-filter-head,
+  .report-collection-actions,
+  .report-collection-head,
+  .report-entry-head,
   .report-panel-head,
+  .patient-context-strip,
   .footer-actions {
     grid-template-columns: 1fr;
     flex-direction: column;
@@ -113,11 +119,13 @@
 
   .metrics-grid,
   .availability-grid,
+  .summary-card-grid,
   .form-grid,
   .compact-grid,
   .auth-form,
   .patient-search-filter-grid,
   .patient-record-grid,
+  .checklist-panel,
   .patient-search-form {
     grid-template-columns: 1fr;
   }

@@ -30,7 +30,7 @@
         <div class="auth-surface-head">
           <p class="section-label">Secure entry</p>
           <h2>Access the live inpatient operations workspace.</h2>
-          <p>Use an existing staff account or create a new one. Every listed profile currently enters the same operational workspace while role controls are still being defined.</p>
+          <p>Use an existing staff account to enter the workspace. The first account should be a Head Admin; later staff accounts require Head Admin authorization.</p>
         </div>
 
         <div class="auth-tab-list" role="tablist" aria-label="Staff account actions">
@@ -76,6 +76,14 @@
             </div>
 
             <form class="form-grid auth-form" data-register-form>
+              <div class="field field-span-full">
+                <label for="register-admin-email">Head Admin email</label>
+                <input id="register-admin-email" name="adminEmail" type="email" autocomplete="username" placeholder="Required after first setup">
+              </div>
+              <div class="field field-span-full">
+                <label for="register-admin-password">Head Admin password</label>
+                <input id="register-admin-password" name="adminPassword" type="password" autocomplete="current-password" placeholder="Required after first setup">
+              </div>
               <div class="field field-span-full">
                 <label for="register-full-name">Full name</label>
                 <input id="register-full-name" name="fullName" type="text" autocomplete="name" placeholder="Vikram Patel" required>

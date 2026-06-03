@@ -39,6 +39,7 @@
         <a href="#consult" data-panel-link>Consultant visit</a>
         <a href="#availability" data-panel-link>Doctor slots</a>
         <a href="#discharge" data-panel-link>Discharge</a>
+        <a href="#documents" data-panel-link>Documents</a>
         <a href="#notes" data-panel-link>Notes</a>
         <a href="#audit" data-panel-link>Audit</a>
       </nav>
@@ -50,6 +51,7 @@
           <li>Multi-user access</li>
           <li>Session timeout</li>
           <li>Forgot password flow</li>
+          <li><a href="/create-account">Head Admin account creation</a></li>
         </ul>
       </section>
     </aside>
@@ -63,11 +65,11 @@
           </div>
           <div class="hero-kicker">
             <span class="hero-kicker-line"></span>
-            <span>Staff operating system for inpatient care</span>
+            <span>Inpatient operations workspace</span>
           </div>
-          <h2>Run the whole stay from one cinematic hospital command surface.</h2>
+          <h2>Manage inpatient care from admission through discharge.</h2>
           <p class="hero-copy">
-            Admission capture, ward updates, medication, diagnostics, consultants, doctor slots, discharge planning, and audit trails now move through one staff-first control desk designed to reduce operational drag.
+            Admission capture, ward updates, medication, diagnostics, consultant scheduling, discharge planning, caregiver access, and audit trails are grouped into one staff workspace.
           </p>
           <div class="hero-proof-strip">
             <div>
@@ -86,15 +88,15 @@
           <div class="hero-highlights">
             <article class="hero-highlight">
               <strong>01</strong>
-              <span>One visual flow for bedside care, diagnostics, and team handoff decisions.</span>
+              <span>Bedside care, diagnostics, medication, and team handoff fields stay in one patient record.</span>
             </article>
             <article class="hero-highlight">
               <strong>02</strong>
-              <span>Module sequencing that keeps the patient story intact from admission to discharge.</span>
+              <span>Patient-facing visibility is explicit for reports, notes, documents, and discharge packs.</span>
             </article>
             <article class="hero-highlight">
               <strong>03</strong>
-              <span>Staff-ready controls for reception, nurses, doctors, consultants, and reports.</span>
+              <span>Audit events and field history are retained for accountable record review.</span>
             </article>
           </div>
         </div>
@@ -145,53 +147,6 @@
         </div>
       </header>
 
-      <section class="surface landing-band">
-        <div class="landing-band-copy">
-          <p class="section-label">Why this feels different</p>
-          <h3>A product-style landing layer for a serious hospital workflow.</h3>
-          <p class="section-intro">
-            Instead of dropping staff straight into flat forms, the entry experience now frames the control desk like a modern care operations product with clearer value, more atmosphere, and a stronger sense of flow.
-          </p>
-        </div>
-        <div class="landing-band-grid">
-          <article class="landing-band-card">
-            <p>Unified patient path</p>
-            <strong>Admission, care, meds, reports, discharge</strong>
-            <span>Everything is arranged as one continuous journey rather than disconnected data entry islands.</span>
-          </article>
-          <article class="landing-band-card">
-            <p>Designed for teams</p>
-            <strong>Reception, nurses, doctors, consultants, labs</strong>
-            <span>The UI presents one shared command layer so collaboration feels native even before access rules are introduced.</span>
-          </article>
-          <article class="landing-band-card">
-            <p>Operational confidence</p>
-            <strong>Fast review, faster action</strong>
-            <span>Visual hierarchy now pulls the dashboard, patient search, and new admission actions forward immediately.</span>
-          </article>
-        </div>
-      </section>
-
-      <section class="surface story-grid">
-        <article class="story-panel story-panel--wide">
-          <p class="section-label">Control story</p>
-          <h3>From front-desk intake to post-round updates, the interface behaves like one continuous mission room.</h3>
-          <p>
-            Staff can move from a landing narrative into operational modules without losing orientation. The top of the page now behaves like a product showcase, while the lower sections remain practical and editable.
-          </p>
-        </article>
-        <article class="story-panel">
-          <p class="section-label">Visual direction</p>
-          <strong>Editorial layout with layered clinical graphics</strong>
-          <span>Soft gradients, floating cards, and stronger typography give the app more presence without pushing it into entertainment UI.</span>
-        </article>
-        <article class="story-panel">
-          <p class="section-label">Immediate actions</p>
-          <strong>Search, admit, and review without hesitation</strong>
-          <span>The primary calls to action stay visible near the top, so the landing presentation still drives real staff behavior.</span>
-        </article>
-      </section>
-
       <section id="dashboard" class="surface">
         <div class="section-head">
           <div>
@@ -199,8 +154,8 @@
             <h3>Operational dashboard</h3>
           </div>
           <div class="status-strip">
-            <span>Shift:</span>
-            <span>Unit:</span>
+            <span>Shift: Active</span>
+            <span>Unit: All authorized wards</span>
           </div>
         </div>
         <div class="metrics-grid">
@@ -210,10 +165,66 @@
             <span data-dashboard-admitted-caption>No admissions yet</span>
           </article>
           <article class="metric-card teal">
-            <p>Discharge patient</p>
+            <p>Pending discharge</p>
             <strong data-dashboard-discharge>0</strong>
             <span data-dashboard-discharge-caption>No planned discharges</span>
           </article>
+          <article class="metric-card gold">
+            <p>Pending reports</p>
+            <strong data-dashboard-pending-reports>0</strong>
+            <span>Diagnostics awaiting completion or review</span>
+          </article>
+          <article class="metric-card rose">
+            <p>Due medication tasks</p>
+            <strong data-dashboard-medication-due>0</strong>
+            <span>Active medication workflows needing attention</span>
+          </article>
+          <article class="metric-card teal">
+            <p>Consultant visits</p>
+            <strong data-dashboard-consults>0</strong>
+            <span>Same-day or upcoming consult requests</span>
+          </article>
+          <article class="metric-card warm">
+            <p>Daily notes due</p>
+            <strong data-dashboard-daily-notes>0</strong>
+            <span>Records needing activity or progress updates</span>
+          </article>
+          <article class="metric-card rose">
+            <p>Priority patients</p>
+            <strong data-dashboard-priority>0</strong>
+            <span>Critical, isolation, abnormal result, or exception flags</span>
+          </article>
+          <article class="metric-card gold">
+            <p>Follow-up scheduling</p>
+            <strong data-dashboard-followups>0</strong>
+            <span>Discharge and post-discharge reminders to book</span>
+          </article>
+        </div>
+        <div class="dashboard-layout">
+          <section class="info-panel">
+            <div class="panel-head">
+              <h4>Alert center preview</h4>
+              <span class="soft-tag" data-dashboard-unresolved-alerts>0 unresolved</span>
+            </div>
+            <div class="alert-stack" data-dashboard-alert-list>
+              <article class="alert-item">
+                <span class="alert-dot info"></span>
+                <p>No active alerts loaded yet.</p>
+              </article>
+            </div>
+          </section>
+          <section class="info-panel">
+            <div class="panel-head">
+              <h4>Role-aware worklist</h4>
+              <span class="soft-tag">Urgency sorted</span>
+            </div>
+            <div class="info-table">
+              <div><span>Vitals monitoring due</span><strong data-dashboard-vitals-due>0</strong></div>
+              <div><span>Abnormal or urgent reports</span><strong data-dashboard-abnormal-reports>0</strong></div>
+              <div><span>Discharge blockers</span><strong data-dashboard-discharge-blockers>0</strong></div>
+              <div><span>Caregiver portal setup pending</span><strong data-dashboard-portal-pending>0</strong></div>
+            </div>
+          </section>
         </div>
       </section>
 
@@ -228,25 +239,37 @@
         <form class="form-grid admission-form" data-admission-form>
           <div class="field"><label for="patient-id">Patient ID</label><input id="patient-id" type="text" value="" placeholder=""></div>
           <div class="field"><label for="admission-id">Admission ID</label><input id="admission-id" type="text" value="" placeholder=""></div>
-          <div class="field field-span-2"><label for="patient-name">Full name</label><input id="patient-name" type="text" placeholder=""></div>
-          <div class="field"><label for="age">Age</label><input id="age" type="number" placeholder=""></div>
+          <div class="field field-span-2"><label for="patient-name">Full name</label><input id="patient-name" type="text" placeholder="" required></div>
+          <div class="field"><label for="age">Age</label><input id="age" type="number" placeholder="" min="0" max="130"></div>
           <div class="field"><label for="gender">Gender</label><select id="gender"><option value="" selected></option><option>Female</option><option>Male</option><option>Other</option></select></div>
-          <div class="field"><label for="dob">Date of birth</label><input id="dob" type="date"></div>
+          <div class="field"><label for="dob">Date of birth</label><input id="dob" type="date" required></div>
           <div class="field"><label for="mobile">Mobile number</label><input id="mobile" type="tel" placeholder=""></div>
           <div class="field field-span-2"><label for="address">Address</label><textarea id="address" rows="3" placeholder=""></textarea></div>
-          <div class="field"><label for="emergency-contact">Emergency contact</label><input id="emergency-contact" type="text" placeholder=""></div>
+          <div class="field"><label for="emergency-contact">Emergency contact</label><input id="emergency-contact" type="text" placeholder="" required></div>
+          <div class="field"><label for="emergency-contact-relationship">Emergency contact relationship</label><input id="emergency-contact-relationship" type="text" placeholder=""></div>
           <div class="field"><label for="blood-group">Blood group</label><select id="blood-group"><option value="" selected></option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
           <div class="field"><label for="insurance">Insurance / profile type</label><input id="insurance" type="text" placeholder=""></div>
-          <div class="field"><label for="admission-date">Admission date</label><input id="admission-date" type="date"></div>
-          <div class="field"><label for="admission-time">Admission time</label><input id="admission-time" type="time"></div>
-          <div class="field"><label for="department">Department</label><select id="department"><option value="" selected></option><option>Inpatient medicine</option><option>Cardiology</option><option>Neurology</option><option>Orthopedics</option><option>Pediatrics</option></select></div>
+          <div class="field"><label for="health-card-image-reference">Healthcard details</label><input id="health-card-image-reference" type="text" placeholder="Health card image reference"></div>
+          <div class="field"><label for="language-preference">Language preference</label><input id="language-preference" type="text" placeholder="English"></div>
+          <div class="field"><label for="admission-date">Admission date</label><input id="admission-date" type="date" required></div>
+          <div class="field"><label for="admission-time">Admission time</label><input id="admission-time" type="time" required></div>
+          <div class="field"><label for="department">Department</label><select id="department" required><option value="" selected></option><option>Inpatient medicine</option><option>Cardiology</option><option>Neurology</option><option>Orthopedics</option><option>Pediatrics</option><option>Pulmonology</option><option>Gastroenterology</option></select></div>
           <div class="field"><label for="ward">Ward</label><input id="ward" type="text" placeholder=""></div>
-          <div class="field"><label for="room">Room</label><input id="room" type="text" placeholder=""></div>
-          <div class="field"><label for="bed-number">Bed number</label><input id="bed-number" type="text" placeholder=""></div>
-          <div class="field"><label for="doctor">Admitting doctor</label><input id="doctor" type="text" placeholder=""></div>
+          <div class="field"><label for="room">Room</label><input id="room" type="text" placeholder="" required></div>
+          <div class="field"><label for="bed-number">Bed number</label><input id="bed-number" type="text" placeholder="" required></div>
+          <div class="field"><label for="doctor">Admitting doctor</label><input id="doctor" type="text" placeholder="" required></div>
           <div class="field field-span-2"><label for="diagnosis">Diagnosis on admission</label><textarea id="diagnosis" rows="3" placeholder=""></textarea></div>
           <div class="field field-span-2"><label for="allergies">Allergies</label><textarea id="allergies" rows="2" placeholder=""></textarea></div>
-          <div class="field"><label for="status">Patient status</label><select id="status"><option value="" selected></option><option>Stable</option><option>Observation</option><option>Critical</option><option>Discharge planned</option></select></div>
+          <div class="field"><label for="status">Patient status</label><select id="status" required><option value="" selected></option><option>Stable</option><option>Observation</option><option>Critical</option><option>Isolation</option><option>Discharge planned</option></select></div>
+          <div class="field"><label for="portal-activation-status">Portal activation status</label><select id="portal-activation-status"><option value="" selected></option><option>Inactive</option><option>Pending consent</option><option>Active</option><option>Withdrawn</option></select></div>
+          <div class="field"><label for="caregiver-name">Authorized caregiver / family member</label><input id="caregiver-name" type="text"></div>
+          <div class="field"><label for="caregiver-relationship">Caregiver relationship</label><input id="caregiver-relationship" type="text"></div>
+          <div class="field"><label for="caregiver-phone">Caregiver phone</label><input id="caregiver-phone" type="tel"></div>
+          <div class="field"><label for="caregiver-consent-timestamp">Consent timestamp</label><input id="caregiver-consent-timestamp" type="datetime-local"></div>
+          <div class="field field-span-2"><label class="checkbox-line" for="caregiver-authorized"><input id="caregiver-authorized" type="checkbox"><span>Caregiver/family access authorized by consent</span></label></div>
+          <div class="field"><label for="patient-portal-username">Patient portal user ID</label><input id="patient-portal-username" type="text" readonly></div>
+          <div class="field"><label for="patient-portal-password">Generated portal password</label><input id="patient-portal-password" type="text" readonly></div>
+          <div class="field"><label for="patient-portal-credentials-generated-at">Credential generated at</label><input id="patient-portal-credentials-generated-at" type="text" readonly></div>
           <div class="form-actions field-span-full">
             <p class="form-status" data-admission-status aria-live="polite"></p>
             <button class="primary-btn" type="submit" data-admission-submit-label>Save admission</button>
@@ -257,6 +280,20 @@
       <section id="profile" class="surface two-column" data-collapsible hidden>
         <div>
           <div class="section-head compact"><div><p class="section-label">Module 03</p><h3>Patient profile management</h3></div></div>
+          <div class="patient-context-strip" data-patient-context-strip>
+            <div>
+              <p class="section-label">Current patient</p>
+              <strong data-patient-context-name>No patient loaded</strong>
+              <span data-patient-context-meta>Save or load an admission to populate this workspace header.</span>
+            </div>
+            <span class="soft-tag" data-patient-context-risk>No high-risk flag</span>
+          </div>
+          <div class="summary-card-grid">
+            <article class="summary-card"><span>Admission</span><strong data-summary-admission>Not saved</strong></article>
+            <article class="summary-card"><span>Medications</span><strong data-summary-medications>0 active</strong></article>
+            <article class="summary-card"><span>Diagnostics</span><strong data-summary-reports>0 pending</strong></article>
+            <article class="summary-card"><span>Next appointment</span><strong data-summary-next-appointment>Not booked</strong></article>
+          </div>
           <div class="form-grid compact-grid">
             <div class="field"><label for="assigned-nurse">Assigned nurse</label><input id="assigned-nurse" type="text"></div>
             <div class="field"><label for="profile-assigned-doctor">Assigned doctor</label><input id="profile-assigned-doctor" type="text"></div>
@@ -264,6 +301,7 @@
             <div class="field"><label for="current-room">Current room</label><input id="current-room" type="text"></div>
             <div class="field field-span-2"><label for="profile-condition-summary">Condition summary</label><textarea id="profile-condition-summary" rows="4"></textarea></div>
             <div class="field"><label for="attached-documents-count">Attached documents</label><input id="attached-documents-count" type="text" placeholder="0"></div>
+            <div class="field"><label for="portal-publication-status">Portal publication status</label><select id="portal-publication-status"><option value="" selected></option><option>Draft</option><option>Reviewed</option><option>Published</option><option>Withdrawn</option></select></div>
           </div>
         </div>
         <div class="document-zone">
@@ -291,7 +329,11 @@
             <div class="form-grid compact-grid">
               <div class="field"><label for="activity-date">Date</label><input id="activity-date" type="date"></div>
               <div class="field"><label for="activity-time">Time</label><input id="activity-time" type="time"></div>
-              <div class="field field-span-2"><label for="activity-type">Patient activity / procedure</label><input id="activity-type" type="text" placeholder=""></div>
+              <div class="field"><label for="activity-type">Patient activity / procedure</label><select id="activity-type"><option value="" selected></option><option>Doctor round</option><option>Nursing check</option><option>Vitals recorded</option><option>Medication administered</option><option>Meal served</option><option>Physiotherapy</option><option>Wound care</option><option>Sample collection</option><option>Scan completed</option><option>Patient transfer</option><option>Custom governed type</option></select></div>
+              <div class="field"><label for="activity-performed-by">Performed by</label><input id="activity-performed-by" type="text"></div>
+              <div class="field"><label for="activity-status">Activity status</label><select id="activity-status"><option value="" selected></option><option>Completed</option><option>Pending</option><option>Postponed</option><option>Missed</option><option>Escalated</option></select></div>
+              <div class="field"><label for="activity-priority">Priority</label><select id="activity-priority"><option value="" selected></option><option>Routine</option><option>Priority</option><option>Critical exception</option></select></div>
+              <div class="field field-span-2"><label for="activity-custom-type-governed">Custom activity governance note</label><input id="activity-custom-type-governed" type="text"></div>
               <div class="field field-span-2"><label for="nursing-update">Nursing care update</label><textarea id="nursing-update" rows="3"></textarea></div>
               <div class="field field-span-2"><label for="doctor-rounds">Doctor rounds entry</label><textarea id="doctor-rounds" rows="3"></textarea></div>
             </div>
@@ -303,6 +345,7 @@
               <label><input id="meal-completed" type="checkbox"> Meal completed</label>
               <label><input id="procedure-completed" type="checkbox"> Procedure completed</label>
               <label><input id="mobility-done" type="checkbox"> Mobility activity done</label>
+              <label><input id="activity-exception-flag" type="checkbox"> Exception/escalation flag</label>
             </div>
             <div class="field"><label for="remarks">Remarks / notes</label><textarea id="remarks" rows="6" placeholder=""></textarea></div>
           </div>
@@ -312,12 +355,23 @@
       <section id="care" class="surface" data-collapsible hidden>
         <div class="section-head"><div><p class="section-label">Module 05</p><h3>Care summary and treatment summary</h3></div></div>
         <div class="form-grid">
+          <div class="field field-span-2"><label for="provisional-diagnosis">Provisional diagnosis</label><textarea id="provisional-diagnosis" rows="3"></textarea></div>
+          <div class="field field-span-2"><label for="final-diagnosis">Confirmed / final diagnosis</label><textarea id="final-diagnosis" rows="3"></textarea></div>
+          <div class="field field-span-2"><label for="treatment-plan">Treatment plan</label><textarea id="treatment-plan" rows="4"></textarea></div>
           <div class="field field-span-2"><label for="treatment-notes">Treatment notes</label><textarea id="treatment-notes" rows="4"></textarea></div>
           <div class="field field-span-2"><label for="diagnosis-update">Diagnosis updates</label><textarea id="diagnosis-update" rows="3"></textarea></div>
           <div class="field field-span-2"><label for="condition-summary">Patient condition summary</label><textarea id="condition-summary" rows="3"></textarea></div>
+          <div class="field field-span-2"><label for="clinical-observations">Clinical observations</label><textarea id="clinical-observations" rows="3"></textarea></div>
           <div class="field"><label for="diet-instructions">Diet instructions</label><textarea id="diet-instructions" rows="3"></textarea></div>
           <div class="field"><label for="precautions">Precautions</label><textarea id="precautions" rows="3"></textarea></div>
           <div class="field field-span-2"><label for="progress-notes">Progress notes and nursing instructions</label><textarea id="progress-notes" rows="4"></textarea></div>
+          <div class="field"><label for="note-visibility">Default note visibility</label><select id="note-visibility"><option value="" selected></option><option>Internal only</option><option>Patient-facing</option><option>Awaiting review</option></select></div>
+          <div class="field"><label for="clinical-signoff-state">Clinical sign-off state</label><select id="clinical-signoff-state"><option value="" selected></option><option>Draft</option><option>Doctor signed</option><option>Nurse acknowledged</option><option>Blocked</option></select></div>
+          <div class="field"><label for="doctor-signoff-by">Doctor sign-off by</label><input id="doctor-signoff-by" type="text"></div>
+          <div class="field"><label for="doctor-signoff-at">Doctor sign-off time</label><input id="doctor-signoff-at" type="datetime-local"></div>
+          <div class="field"><label for="nurse-acknowledgement-by">Nurse acknowledgement by</label><input id="nurse-acknowledgement-by" type="text"></div>
+          <div class="field"><label for="nurse-acknowledgement-at">Nurse acknowledgement time</label><input id="nurse-acknowledgement-at" type="datetime-local"></div>
+          <div class="field field-span-2"><label for="addendum-reason">Addendum reason for signed notes</label><textarea id="addendum-reason" rows="3"></textarea></div>
         </div>
       </section>
 
@@ -331,22 +385,40 @@
             <h4>Prescription input</h4>
             <div class="form-grid compact-grid">
               <div class="field"><label for="medicine-name">Medicine name</label><input id="medicine-name" type="text"></div>
+              <div class="field"><label for="generic-name">Generic name</label><input id="generic-name" type="text"></div>
               <div class="field"><label for="dose">Dose</label><input id="dose" type="text" placeholder=""></div>
+              <div class="field"><label for="dosage-unit">Dosage unit</label><input id="dosage-unit" type="text" placeholder="mg, mL, units"></div>
               <div class="field"><label for="medicine-type">Type</label><select id="medicine-type"><option value="" selected></option><option>Tablet</option><option>Syrup</option><option>Injection</option><option>Capsule</option></select></div>
               <div class="field"><label for="route">Route</label><select id="route"><option value="" selected></option><option>Oral</option><option>IV</option><option>IM</option><option>Topical</option></select></div>
+              <div class="field"><label for="formulation">Formulation</label><input id="formulation" type="text" placeholder="Tablet, solution, suspension"></div>
               <div class="field"><label for="frequency">Frequency</label><input id="frequency" type="text" placeholder=""></div>
+              <div class="field"><label for="medication-purpose">Purpose</label><input id="medication-purpose" type="text"></div>
               <div class="field"><label for="timing">Timing</label><input id="timing" type="text" placeholder=""></div>
+              <div class="field"><label for="schedule-times">Exact schedule times</label><input id="schedule-times" type="text" placeholder="08:00, 14:00, 20:00"></div>
+              <div class="field"><label for="schedule-period">Schedule grouping</label><select id="schedule-period"><option value="" selected></option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option><option>Multiple exact times</option></select></div>
+              <div class="field"><label class="checkbox-line" for="prn-medication"><input id="prn-medication" type="checkbox"><span>PRN medication</span></label></div>
               <div class="field"><label for="duration">Duration</label><input id="duration" type="text" placeholder=""></div>
-              <div class="field"><label for="food">Before / after food</label><select id="food"><option value="" selected></option><option>After food</option><option>Before food</option><option>Not applicable</option></select></div>
+              <div class="field"><label for="food">Food instruction</label><select id="food"><option value="" selected></option><option>After food</option><option>Before food</option><option>With food</option><option>No restriction</option><option>Not applicable</option></select></div>
               <div class="field"><label for="start-date">Start date</label><input id="start-date" type="date"></div>
               <div class="field"><label for="end-date">End date</label><input id="end-date" type="date"></div>
               <div class="field"><label for="prescribed-by">Doctor prescribed by</label><input id="prescribed-by" type="text"></div>
               <div class="field"><label for="med-status">Medication status</label><select id="med-status"><option value="" selected></option><option>Active</option><option>Stopped</option><option>Completed</option></select></div>
               <div class="field field-span-2"><label for="med-instructions">Special instructions</label><textarea id="med-instructions" rows="3"></textarea></div>
+              <div class="field field-span-2"><label for="caution-text">Patient-visible caution / warning text</label><textarea id="caution-text" rows="3"></textarea></div>
+              <div class="field field-span-2"><label for="allergy-warning">Medication-allergy warning</label><textarea id="allergy-warning" rows="2"></textarea></div>
+              <div class="field field-span-2"><label for="interaction-warning">Interaction warning</label><textarea id="interaction-warning" rows="2"></textarea></div>
+              <div class="field field-span-2"><label for="interaction-override-reason">High-severity override reason</label><textarea id="interaction-override-reason" rows="2"></textarea></div>
+              <div class="field field-span-2"><label for="medication-change-reason">Pause / resume / replacement / discontinuation reason</label><textarea id="medication-change-reason" rows="2"></textarea></div>
             </div>
           </div>
           <div class="subsurface">
             <h4>Administration log</h4>
+            <div class="form-grid compact-grid mar-form">
+              <div class="field"><label for="medication-admin-status">Administration status</label><select id="medication-admin-status"><option value="" selected></option><option>Administered</option><option>Skipped</option><option>Refused</option><option>Delayed</option><option>Unavailable</option></select></div>
+              <div class="field"><label for="medication-admin-time">Administration time</label><input id="medication-admin-time" type="datetime-local"></div>
+              <div class="field"><label for="medication-administered-by">Administered by</label><input id="medication-administered-by" type="text"></div>
+              <div class="field"><label for="medication-exception-reason">Exception reason</label><input id="medication-exception-reason" type="text"></div>
+            </div>
             <div class="table-card">
               <table>
                 <thead><tr><th>Drug</th><th>Scheduled</th><th>Status</th><th>Nurse</th><th>Missed reason</th></tr></thead>
@@ -390,16 +462,20 @@
         </div>
         <div class="form-grid">
           <div class="field"><label for="report-name">Test / report name</label><input id="report-name" type="text"></div>
+          <div class="field"><label for="report-ordering-clinician">Ordering clinician</label><input id="report-ordering-clinician" type="text"></div>
           <div class="field"><label for="ordered-date">Date ordered report</label><input id="ordered-date" type="date"></div>
           <div class="field"><label for="scheduled-date">Date scheduled</label><input id="scheduled-date" type="date"></div>
           <div class="field"><label for="result-date">Date results available</label><input id="result-date" type="date"></div>
-          <div class="field"><label for="report-status">Status</label><select id="report-status"><option value="" selected></option><option>Ordered</option><option>Scheduled</option><option>In progress</option><option>Available</option></select></div>
+          <div class="field"><label for="report-status">Status</label><select id="report-status"><option value="" selected></option><option>Ordered</option><option>Scheduled</option><option>Sample collected</option><option>Processing</option><option>Available</option><option>Reviewed</option><option>Abnormal / urgent</option></select></div>
+          <div class="field"><label for="report-reviewed-by">Reviewed by clinician</label><input id="report-reviewed-by" type="text"></div>
+          <div class="field"><label for="report-reviewed-at">Reviewed at</label><input id="report-reviewed-at" type="datetime-local"></div>
+          <div class="field"><label for="report-release-status">Release status</label><select id="report-release-status"><option value="" selected></option><option>Draft</option><option>Awaiting clinician review</option><option>Reviewed for release</option><option>Published</option><option>Withdrawn</option></select></div>
           <div class="field field-span-2"><label for="report-remarks">Remarks</label><textarea id="report-remarks" rows="3" placeholder="Add any report notes, preparation details, or turnaround remarks"></textarea></div>
           <div class="field field-span-2">
             <label for="report-file-upload">Add report file</label>
-            <input id="report-file-upload" type="file" accept=".pdf,.dcm,.dicom,application/pdf">
+            <input id="report-file-upload" type="file" accept=".pdf,.png,.jpg,.jpeg,.dcm,.dicom,application/pdf,image/png,image/jpeg">
             <input id="report-file-reference" type="hidden">
-            <p class="field-note" data-report-file-feedback>No file selected. Only DICOM and PDF files are allowed.</p>
+            <p class="field-note" data-report-file-feedback>No file selected. PDF, image, DICOM references are allowed.</p>
           </div>
           <div class="field field-span-full report-visibility-field">
             <label class="checkbox-line" for="report-visible-to-patient">
@@ -407,18 +483,41 @@
               <span>Make sure this report is visible on the patient side</span>
             </label>
           </div>
+          <div class="field field-span-full report-visibility-field">
+            <label class="checkbox-line" for="report-abnormal-flag">
+              <input id="report-abnormal-flag" type="checkbox">
+              <span>Abnormal or urgent result requiring routed alert</span>
+            </label>
+          </div>
         </div>
+        <section class="report-collection" aria-live="polite">
+          <div class="report-collection-actions">
+            <button class="secondary-btn" type="button" data-report-add>Add report to list</button>
+            <p class="form-status" data-report-list-status></p>
+          </div>
+          <div class="report-collection-head">
+            <div>
+              <p class="section-label">Added reports</p>
+              <h4 data-report-list-title>Radiology reports</h4>
+            </div>
+            <p data-report-list-copy>Added reports appear here and stay grouped under their own category tabs.</p>
+          </div>
+          <div class="report-entry-list" data-report-entry-list></div>
+          <p class="workload-empty" data-report-entry-empty>No reports have been added for this category yet.</p>
+        </section>
       </section>
 
       <section id="consult" class="surface" data-collapsible hidden>
         <div class="section-head"><div><p class="section-label">Module 08</p><h3>Consultant visit scheduling</h3></div></div>
         <div class="form-grid">
+          <div class="field"><label for="consult-requested-by">Requested by</label><input id="consult-requested-by" type="text"></div>
           <div class="field"><label for="consultant-name">Consultant doctor name</label><input id="consultant-name" type="text"></div>
           <div class="field"><label for="consultant-specialty">Specialty</label><input id="consultant-specialty" type="text"></div>
           <div class="field field-span-2"><label for="consult-reason">Consult reason</label><textarea id="consult-reason" rows="3"></textarea></div>
           <div class="field"><label for="consult-date">Visit date</label><input id="consult-date" type="date"></div>
           <div class="field"><label for="consult-time">Visit time</label><input id="consult-time" type="time"></div>
-          <div class="field"><label for="consult-status">Visit status</label><select id="consult-status"><option value="" selected></option><option>Scheduled</option><option>Completed</option><option>Rescheduled</option><option>Cancelled</option></select></div>
+          <div class="field"><label for="consult-status">Visit status</label><select id="consult-status"><option value="" selected></option><option>Requested</option><option>Confirmed</option><option>Completed</option><option>Postponed</option><option>Cancelled</option></select></div>
+          <div class="field"><label for="consult-reschedule-reason">Reschedule/cancel reason</label><input id="consult-reschedule-reason" type="text"></div>
           <div class="field field-span-2"><label for="consult-notes">Notes after consult</label><textarea id="consult-notes" rows="3"></textarea></div>
         </div>
       </section>
@@ -429,13 +528,23 @@
           <p class="section-intro">Staff need 4 to 5 visible dates with clear slots so appointments can be confirmed during the same call or bedside interaction.</p>
         </div>
         <div class="availability-grid">
-          <article class="slot-card"><p class="slot-date"></p><strong></strong><span></span></article>
-          <article class="slot-card"><p class="slot-date"></p><strong></strong><span></span></article>
-          <article class="slot-card"><p class="slot-date"></p><strong></strong><span></span></article>
-          <article class="slot-card"><p class="slot-date"></p><strong></strong><span></span></article>
-          <article class="slot-card"><p class="slot-date"></p><strong></strong><span></span></article>
+          <article class="slot-card"><p class="slot-date">Slot 1</p><strong data-availability-slot-preview="1">Not configured</strong><span>Doctor availability</span></article>
+          <article class="slot-card"><p class="slot-date">Slot 2</p><strong data-availability-slot-preview="2">Not configured</strong><span>Doctor availability</span></article>
+          <article class="slot-card"><p class="slot-date">Slot 3</p><strong data-availability-slot-preview="3">Not configured</strong><span>Doctor availability</span></article>
+          <article class="slot-card"><p class="slot-date">Slot 4</p><strong data-availability-slot-preview="4">Not configured</strong><span>Doctor availability</span></article>
+          <article class="slot-card"><p class="slot-date">Slot 5</p><strong data-availability-slot-preview="5">Not configured</strong><span>Doctor availability</span></article>
         </div>
         <div class="form-grid appointment-form">
+          <div class="field"><label for="availability-provider">Availability provider</label><input id="availability-provider" type="text"></div>
+          <div class="field"><label for="availability-location">Clinic/location</label><input id="availability-location" type="text"></div>
+          <div class="field"><label for="availability-slot-duration">Availability slot duration</label><input id="availability-slot-duration" type="text"></div>
+          <div class="field"><label for="availability-max-patients">Max patient count</label><input id="availability-max-patients" type="number" min="0"></div>
+          <div class="field field-span-2"><label for="availability-blocked-dates">Blocked dates</label><input id="availability-blocked-dates" type="text" placeholder="YYYY-MM-DD, YYYY-MM-DD"></div>
+          <div class="field"><label for="available-slot-one">Available slot 1</label><input id="available-slot-one" type="datetime-local"></div>
+          <div class="field"><label for="available-slot-two">Available slot 2</label><input id="available-slot-two" type="datetime-local"></div>
+          <div class="field"><label for="available-slot-three">Available slot 3</label><input id="available-slot-three" type="datetime-local"></div>
+          <div class="field"><label for="available-slot-four">Available slot 4</label><input id="available-slot-four" type="datetime-local"></div>
+          <div class="field"><label for="available-slot-five">Available slot 5</label><input id="available-slot-five" type="datetime-local"></div>
           <div class="field"><label for="appointment-doctor">Doctor name</label><input id="appointment-doctor" type="text"></div>
           <div class="field"><label for="appointment-department">Department</label><input id="appointment-department" type="text"></div>
           <div class="field"><label for="appointment-date">Date</label><input id="appointment-date" type="date"></div>
@@ -443,6 +552,11 @@
           <div class="field"><label for="slot-duration">Slot duration</label><input id="slot-duration" type="text" placeholder=""></div>
           <div class="field"><label for="visit-reason">Visit reason</label><input id="visit-reason" type="text"></div>
           <div class="field"><label for="appointment-status">Status</label><select id="appointment-status"><option value="" selected></option><option>Booked</option><option>Rescheduled</option><option>Cancelled</option><option>Review due</option></select></div>
+          <div class="field"><label for="appointment-reschedule-reason">Reschedule/cancel reason</label><input id="appointment-reschedule-reason" type="text"></div>
+          <div class="field"><label for="follow-up-provider">Follow-up provider/service</label><input id="follow-up-provider" type="text"></div>
+          <div class="field"><label for="follow-up-type">Follow-up type</label><select id="follow-up-type"><option value="" selected></option><option>Clinic</option><option>Teleconsultation</option><option>Repeat test</option><option>Doctor review</option></select></div>
+          <div class="field"><label for="next-test-date">Next test date</label><input id="next-test-date" type="date"></div>
+          <div class="field"><label for="follow-up-reminder-date">Follow-up reminder date</label><input id="follow-up-reminder-date" type="date"></div>
         </div>
       </section>
 
@@ -451,12 +565,45 @@
         <div class="form-grid">
           <div class="field"><label for="expected-discharge">Expected discharge date</label><input id="expected-discharge" type="date"></div>
           <div class="field"><label for="discharge-date">Discharge date</label><input id="discharge-date" type="date"></div>
+          <div class="field field-span-2"><label for="discharge-final-diagnosis">Final diagnosis for discharge</label><textarea id="discharge-final-diagnosis" rows="3"></textarea></div>
+          <div class="field field-span-2"><label for="hospital-course">Hospital course summary</label><textarea id="hospital-course" rows="4"></textarea></div>
+          <div class="field field-span-2"><label for="procedures-performed">Procedures performed</label><textarea id="procedures-performed" rows="3"></textarea></div>
           <div class="field field-span-2"><label for="discharge-summary">Discharge summary</label><textarea id="discharge-summary" rows="4"></textarea></div>
           <div class="field field-span-2"><label for="discharge-medication">Discharge medication</label><textarea id="discharge-medication" rows="3"></textarea></div>
           <div class="field"><label for="home-care">Home care advice</label><textarea id="home-care" rows="3"></textarea></div>
           <div class="field"><label for="warning-signs">Warning signs</label><textarea id="warning-signs" rows="3"></textarea></div>
+          <div class="field field-span-2"><label for="discharge-blockers">Discharge blockers</label><textarea id="discharge-blockers" rows="3"></textarea></div>
+          <div class="field"><label for="discharge-signoff-by">Authorized clinician sign-off by</label><input id="discharge-signoff-by" type="text"></div>
+          <div class="field"><label for="discharge-signoff-at">Sign-off time</label><input id="discharge-signoff-at" type="datetime-local"></div>
           <div class="field"><label for="follow-up-date">Follow-up date</label><input id="follow-up-date" type="date"></div>
           <div class="field"><label for="review-instructions">Review appointment notes</label><textarea id="review-instructions" rows="3"></textarea></div>
+          <div class="field"><label for="medication-reminder-date">Medication reminder date</label><input id="medication-reminder-date" type="date"></div>
+          <div class="field"><label for="doctor-review-reminder-date">Doctor review reminder date</label><input id="doctor-review-reminder-date" type="date"></div>
+          <div class="field"><label for="test-reminder-date">Scheduled test reminder date</label><input id="test-reminder-date" type="date"></div>
+          <div class="field field-span-full checklist-panel">
+            <label><input id="discharge-checklist-counseling-complete" type="checkbox"> Counseling complete</label>
+            <label><input id="discharge-checklist-documents-shared" type="checkbox"> Documents shared</label>
+            <label><input id="discharge-checklist-reminders-enabled" type="checkbox"> Reminders enabled</label>
+            <label><input id="discharge-checklist-caregiver-informed" type="checkbox"> Caregiver informed</label>
+            <label><input id="discharge-pack-published" type="checkbox"> Publish approved discharge pack to patient portal</label>
+          </div>
+        </div>
+      </section>
+
+      <section id="documents" class="surface" data-collapsible hidden>
+        <div class="section-head">
+          <div><p class="section-label">Module 11</p><h3>Document center and file governance</h3></div>
+          <p class="section-intro">Classify inpatient documents with conservative visibility defaults, ownership, version status, and replacement traceability.</p>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="document-category">Document category</label><select id="document-category"><option value="" selected></option><option>Prescription</option><option>Report</option><option>Consent form</option><option>Discharge file</option><option>Referral</option><option>Scanned document</option></select></div>
+          <div class="field"><label for="document-date">Document date</label><input id="document-date" type="date"></div>
+          <div class="field"><label for="document-source">Source</label><input id="document-source" type="text"></div>
+          <div class="field"><label for="document-owner">Owner</label><input id="document-owner" type="text"></div>
+          <div class="field field-span-2"><label for="document-upload-reference">Upload/file reference</label><input id="document-upload-reference" type="text" placeholder="PDF, image, consent, or scanned file reference"></div>
+          <div class="field"><label for="document-visibility">Patient visibility</label><select id="document-visibility"><option value="" selected></option><option>Internal only</option><option>Awaiting review</option><option>Patient-visible</option><option>Withdrawn</option></select></div>
+          <div class="field"><label for="document-current-status">Version status</label><select id="document-current-status"><option value="" selected></option><option>Current</option><option>Superseded</option><option>Replacement pending</option></select></div>
+          <div class="field field-span-2"><label for="document-version-note">Version / replacement note</label><textarea id="document-version-note" rows="3"></textarea></div>
         </div>
       </section>
 
@@ -464,20 +611,47 @@
         <div class="subsurface">
           <h4>Internal notes and communication</h4>
           <div class="form-grid compact-grid">
+            <div class="field"><label for="note-author">Note author</label><input id="note-author" type="text"></div>
+            <div class="field"><label for="note-timestamp">Note timestamp</label><input id="note-timestamp" type="datetime-local"></div>
             <div class="field field-span-2"><label for="staff-notes">Staff notes</label><textarea id="staff-notes" rows="3"></textarea></div>
             <div class="field field-span-2"><label for="doctor-notes">Doctor notes</label><textarea id="doctor-notes" rows="3"></textarea></div>
             <div class="field field-span-2"><label for="handover-notes">Nurse handover notes</label><textarea id="handover-notes" rows="3"></textarea></div>
             <div class="field field-span-2"><label class="checkbox-line"><input id="note-patient-facing" type="checkbox"> Mark selected note as patient-facing</label></div>
           </div>
         </div>
-        <div id="audit" class="subsurface">
-          <h4>Audit and record control</h4>
+        <div class="subsurface">
+          <h4>Notifications and reminders</h4>
+          <div class="form-grid compact-grid">
+            <div class="field"><label for="reminder-owner">Reminder owner/team</label><input id="reminder-owner" type="text"></div>
+            <div class="field"><label for="reminder-due-date">Reminder due date</label><input id="reminder-due-date" type="date"></div>
+            <div class="field"><label for="reminder-status">Reminder status</label><select id="reminder-status"><option value="" selected></option><option>Open</option><option>In progress</option><option>Completed</option><option>Overdue</option></select></div>
+            <div class="field"><label for="patient-notification-trigger">Patient communication trigger</label><select id="patient-notification-trigger"><option value="" selected></option><option>Report release</option><option>Appointment booking</option><option>Discharge publication</option><option>Reminder update</option></select></div>
+            <div class="field field-span-2"><label for="notification-template">Notification template note</label><textarea id="notification-template" rows="3"></textarea></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="audit" class="surface two-column" data-collapsible hidden>
+        <div class="subsurface">
+          <h4>Audit and access review</h4>
           <div class="form-grid compact-grid">
             <div class="field field-span-2"><label for="who-updated-what">Who updated what</label><textarea id="who-updated-what" rows="3"></textarea></div>
             <div class="field field-span-2"><label for="timestamp-logs">Timestamp logs</label><textarea id="timestamp-logs" rows="3"></textarea></div>
             <div class="field"><label for="edit-history-count">Edit history</label><input id="edit-history-count" type="text" placeholder="0"></div>
             <div class="field"><label for="role-based-visibility">Role-based visibility</label><input id="role-based-visibility" type="text"></div>
             <div class="field field-span-2"><label for="approval-flow">Approval flow</label><textarea id="approval-flow" rows="3"></textarea></div>
+            <div class="field field-span-2"><label for="access-review-notes">Patient-centric access review notes</label><textarea id="access-review-notes" rows="3"></textarea></div>
+            <div class="field field-span-2"><label for="master-data-change-notes">Role/master data administration notes</label><textarea id="master-data-change-notes" rows="3"></textarea></div>
+            <div class="field field-span-2"><label for="policy-setting-notes">Policy, retention, backup, integration notes</label><textarea id="policy-setting-notes" rows="3"></textarea></div>
+            <div class="field"><label for="break-glass-reason">Break-glass reason</label><input id="break-glass-reason" type="text"></div>
+            <div class="field"><label for="audit-export-purpose">Export purpose</label><input id="audit-export-purpose" type="text"></div>
+            <div class="field"><label for="export-approved-by">Export approved by</label><input id="export-approved-by" type="text"></div>
+          </div>
+        </div>
+        <div class="subsurface">
+          <h4>Saved audit events and field history</h4>
+          <div class="audit-list" data-audit-event-list>
+            <div><span>No audit events loaded</span><strong>Save or open a record</strong></div>
           </div>
         </div>
       </section>

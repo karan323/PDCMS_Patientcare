@@ -2,6 +2,81 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const crypto = require("node:crypto");
 
+const isFilled = value => String(value ?? "").trim().length > 0;
+const isPendingReport = report => report && !["Available", "Reviewed"].includes(String(report.reportStatus || ""));
+const isTodayOrFuture = value => {
+  const normalized = String(value || "").slice(0, 10);
+  return normalized && normalized >= new Date().toISOString().slice(0, 10);
+};
+
+const buildSummary = admissions => {
+  const pendingReports = admissions.reduce(
+    (count, item) => count + (Array.isArray(item.reports) ? item.reports.filter(isPendingReport).length : isPendingReport(item) ? 1 : 0),
+    0
+  );
+  const abnormalReports = admissions.reduce(
+    (count, item) =>
+      count +
+      (Array.isArray(item.reports)
+        ? item.reports.filter(report => report.reportAbnormalFlag || report.reportStatus === "Abnormal / urgent").length
+        : item.reportAbnormalFlag || item.reportStatus === "Abnormal / urgent"
+          ? 1
+          : 0),
+    0
+  );
+  const dueMedicationTasks = admissions.filter(item => item.medicineName && item.medStatus !== "Stopped").length;
+  const upcomingConsults = admissions.filter(item => isTodayOrFuture(item.consultDate)).length;
+  const dailyNoteUpdatesNeeded = admissions.filter(item => !isFilled(item.activityDate) || !isFilled(item.progressNotes)).length;
+  const vitalsMonitoringDue = admissions.filter(item => !item.vitalsRecorded).length;
+  const priorityPatients = admissions.filter(
+    item =>
+      item.status === "Critical" ||
+      item.status === "Isolation" ||
+      item.activityExceptionFlag ||
+      item.reportAbnormalFlag ||
+      (Array.isArray(item.reports) && item.reports.some(report => report.reportAbnormalFlag))
+  ).length;
+  const dischargeFollowUps = admissions.filter(
+    item => item.status === "Discharge planned" || isFilled(item.followUpDate) || isFilled(item.followUpReminderDate)
+  ).length;
+  const dischargeBlockers = admissions.filter(item => isFilled(item.dischargeBlockers)).length;
+  const portalSetupPending = admissions.filter(item => item.caregiverAuthorized && !isFilled(item.patientPortalPassword)).length;
+  const unresolvedAlerts =
+    pendingReports +
+    abnormalReports +
+    dueMedicationTasks +
+    upcomingConsults +
+    dailyNoteUpdatesNeeded +
+    vitalsMonitoringDue +
+    priorityPatients +
+    dischargeBlockers;
+
+  const alerts = [
+    abnormalReports > 0 && { severity: "critical", message: `${abnormalReports} abnormal or urgent report item(s) need review.` },
+    dueMedicationTasks > 0 && { severity: "due", message: `${dueMedicationTasks} active medication workflow(s) need MAR review.` },
+    dailyNoteUpdatesNeeded > 0 && { severity: "due", message: `${dailyNoteUpdatesNeeded} patient record(s) need daily activity or progress notes.` },
+    dischargeBlockers > 0 && { severity: "critical", message: `${dischargeBlockers} discharge record(s) have unresolved blockers.` },
+    portalSetupPending > 0 && { severity: "info", message: `${portalSetupPending} caregiver portal setup(s) need credential review.` }
+  ].filter(Boolean);
+
+  return {
+    admittedPatients: admissions.length,
+    dischargePlanned: admissions.filter(item => item.status === "Discharge planned").length,
+    pendingReports,
+    abnormalReports,
+    dueMedicationTasks,
+    upcomingConsults,
+    dailyNoteUpdatesNeeded,
+    vitalsMonitoringDue,
+    priorityPatients,
+    dischargeFollowUps,
+    dischargeBlockers,
+    portalSetupPending,
+    unresolvedAlerts,
+    alerts
+  };
+};
+
 class FileAdmissionStore {
   constructor(filePath) {
     this.filePath = filePath;
@@ -96,13 +171,28 @@ class FileAdmissionStore {
     return nextItem;
   }
 
+  async appendAuditEvent({ id, event }) {
+    const data = await this.#read();
+    const index = data.admissions.findIndex(item => item.id === id);
+
+    if (index === -1) {
+      return null;
+    }
+
+    const existingItem = data.admissions[index];
+    const nextItem = {
+      ...existingItem,
+      auditEvents: [...(existingItem.auditEvents || []), event]
+    };
+
+    data.admissions[index] = nextItem;
+    await this.#write(data);
+    return nextItem;
+  }
+
   async getSummary() {
     const data = await this.#read();
-
-    return {
-      admittedPatients: data.admissions.length,
-      dischargePlanned: data.admissions.filter(item => item.status === "Discharge planned").length
-    };
+    return buildSummary(data.admissions);
   }
 
   async #read() {
