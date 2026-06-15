@@ -103,6 +103,7 @@ class FileAdmissionStore {
     patientId = null,
     fullName = null,
     doctor = null,
+    mobileNumber = null,
     entryDate = null,
     entryDateFrom = null,
     entryDateTo = null,
@@ -115,6 +116,7 @@ class FileAdmissionStore {
       patientId: String(patientId || "").trim().toLowerCase(),
       fullName: String(fullName || "").trim().toLowerCase(),
       doctor: String(doctor || "").trim().toLowerCase(),
+      mobileNumber: String(mobileNumber || "").trim().toLowerCase(),
       entryDate: String(entryDate || "").trim(),
       entryDateFrom: String(entryDateFrom || "").trim(),
       entryDateTo: String(entryDateTo || "").trim()
@@ -243,7 +245,7 @@ class FileAdmissionStore {
       !(
         filters.queryMode === "broad"
           ? broadSearchValues.some(value => value.includes(filters.query))
-          : [patientId, fullName].some(value => value.includes(filters.query))
+          : [patientId, admissionId, fullName].some(value => value.includes(filters.query))
       )
     ) {
       return false;
@@ -258,6 +260,10 @@ class FileAdmissionStore {
     }
 
     if (filters.doctor && !doctor.includes(filters.doctor)) {
+      return false;
+    }
+
+    if (filters.mobileNumber && !mobileNumber.includes(filters.mobileNumber)) {
       return false;
     }
 

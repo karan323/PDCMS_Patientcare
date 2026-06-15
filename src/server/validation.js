@@ -652,6 +652,7 @@ const normalizeAdmissionSearchFilters = query => {
     patientId: optionalString(query?.patientId),
     fullName: optionalString(query?.fullName),
     doctor: optionalString(query?.doctor),
+    mobileNumber: optionalString(query?.mobileNumber),
     entryDate: optionalString(query?.entryDate),
     entryDateFrom: optionalString(query?.entryDateFrom),
     entryDateTo: optionalString(query?.entryDateTo)

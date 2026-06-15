@@ -35,6 +35,7 @@ window.PDCMS.initializePatientSearch = () => {
   const patientIdFilterInput = document.querySelector("[data-patient-filter-patient-id]");
   const fullNameFilterInput = document.querySelector("[data-patient-filter-full-name]");
   const doctorFilterInput = document.querySelector("[data-patient-filter-doctor]");
+  const mobileFilterInput = document.querySelector("[data-patient-filter-mobile]");
   const dateModeSelect = document.querySelector("[data-patient-filter-date-mode]");
   const singleDateField = document.querySelector("[data-patient-filter-single-field]");
   const rangeStartField = document.querySelector("[data-patient-filter-range-start-field]");
@@ -65,6 +66,7 @@ window.PDCMS.initializePatientSearch = () => {
     !patientIdFilterInput ||
     !fullNameFilterInput ||
     !doctorFilterInput ||
+    !mobileFilterInput ||
     !dateModeSelect ||
     !singleDateField ||
     !rangeStartField ||
@@ -165,8 +167,16 @@ window.PDCMS.initializePatientSearch = () => {
     const actions = document.createElement("div");
     actions.className = "patient-record-head-actions";
 
+    const STATUS_PILL_CLASS = {
+      Critical: "critical",
+      Isolation: "warning",
+      "Discharge planned": "muted",
+      Observation: "info",
+      Stable: "success"
+    };
+
     const statusPill = document.createElement("span");
-    statusPill.className = "pill success";
+    statusPill.className = `pill ${STATUS_PILL_CLASS[record.status] || "muted"}`;
     statusPill.textContent = displayValue(record.status);
 
     const editButton = document.createElement("button");
@@ -181,9 +191,13 @@ window.PDCMS.initializePatientSearch = () => {
     const grid = document.createElement("div");
     grid.className = "patient-record-grid";
 
+    const wardBed = [record.ward, record.room, record.bedNumber].filter(Boolean).join(" / ") || null;
+
     const fieldPairs = [
       ["Patient ID", record.patientId],
+      ["Admission ID", record.admissionId],
       ["Date of entry", record.admissionDate],
+      ["Ward / Room / Bed", wardBed],
       ["Doctor", record.doctor],
       ["Department", record.department]
     ];
@@ -237,6 +251,7 @@ window.PDCMS.initializePatientSearch = () => {
       patientIdFilterInput.value.trim() ||
         fullNameFilterInput.value.trim() ||
         doctorFilterInput.value.trim() ||
+        mobileFilterInput.value.trim() ||
         dateModeSelect.value ||
         entryDateInput.value ||
         entryDateFromInput.value ||
@@ -256,6 +271,7 @@ window.PDCMS.initializePatientSearch = () => {
     const patientId = patientIdFilterInput.value.trim();
     const fullName = fullNameFilterInput.value.trim();
     const doctor = doctorFilterInput.value.trim();
+    const mobile = mobileFilterInput.value.trim();
     const dateMode = dateModeSelect.value;
     const entryDate = entryDateInput.value;
     const entryDateFrom = entryDateFromInput.value;
@@ -289,6 +305,11 @@ window.PDCMS.initializePatientSearch = () => {
     if (doctor) {
       params.set("doctor", doctor);
       descriptions.push(`doctor matching "${doctor}"`);
+    }
+
+    if (mobile) {
+      params.set("mobileNumber", mobile);
+      descriptions.push(`mobile number matching "${mobile}"`);
     }
 
     if (dateMode === "single") {

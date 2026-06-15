@@ -31,10 +31,10 @@
       <section class="sidebar-card">
         <p class="section-label">Search scope</p>
         <ul class="sidebar-list">
-          <li>Default search by patient ID or patient name</li>
+          <li>Default search by patient ID, admission ID, or name</li>
           <li>Start with * to search across all patient fields</li>
-          <li>Advanced filter for patient ID</li>
-          <li>Advanced filter for patient name or doctor</li>
+          <li>Advanced filter for patient ID or admission ID</li>
+          <li>Advanced filter for patient name, doctor, or mobile number</li>
           <li>Date of entry as a single date or date range</li>
         </ul>
       </section>
@@ -123,6 +123,10 @@
                 <input id="patient-filter-doctor" type="search" placeholder="Dr. Raven" data-patient-filter-doctor>
               </div>
               <div class="field">
+                <label for="patient-filter-mobile">Mobile / phone number</label>
+                <input id="patient-filter-mobile" type="search" placeholder="+1 555 0100" data-patient-filter-mobile>
+              </div>
+              <div class="field">
                 <label for="patient-filter-date-mode">Date of entry filter</label>
                 <select id="patient-filter-date-mode" data-patient-filter-date-mode>
                   <option value="" selected>No date filter</option>
@@ -207,6 +211,7 @@
   <script src="src/scripts/product/runtime-config.js"></script>
   <script src="src/scripts/product/config.js"></script>
   <script src="src/scripts/product/auth.js"></script>
+  <script src="src/scripts/ui/session-timeout.js"></script>
   <script src="src/scripts/ui/patient-search.js"></script>
 </body>
 </html>

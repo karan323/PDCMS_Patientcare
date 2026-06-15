@@ -173,6 +173,7 @@ class PostgresAdmissionStore {
     patientId = null,
     fullName = null,
     doctor = null,
+    mobileNumber = null,
     entryDate = null,
     entryDateFrom = null,
     entryDateTo = null,
@@ -183,6 +184,7 @@ class PostgresAdmissionStore {
     const normalizedPatientId = String(patientId || "").trim();
     const normalizedFullName = String(fullName || "").trim();
     const normalizedDoctor = String(doctor || "").trim();
+    const normalizedMobile = String(mobileNumber || "").trim();
     const normalizedEntryDate = String(entryDate || "").trim();
     const normalizedEntryDateFrom = String(entryDateFrom || "").trim();
     const normalizedEntryDateTo = String(entryDateTo || "").trim();
@@ -216,6 +218,7 @@ class PostgresAdmissionStore {
                 `
               : `
           patient_id ILIKE $${parameters.length}
+          OR admission_id ILIKE $${parameters.length}
           OR full_name ILIKE $${parameters.length}
                 `
           }
@@ -236,6 +239,11 @@ class PostgresAdmissionStore {
     if (normalizedDoctor) {
       parameters.push(`%${normalizedDoctor}%`);
       conditions.push(`COALESCE(doctor, '') ILIKE $${parameters.length}`);
+    }
+
+    if (normalizedMobile) {
+      parameters.push(`%${normalizedMobile}%`);
+      conditions.push(`COALESCE(mobile_number, '') ILIKE $${parameters.length}`);
     }
 
     if (normalizedEntryDate) {

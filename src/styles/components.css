@@ -919,6 +919,65 @@ textarea {
   color: #5e756d;
 }
 
+.pill.critical {
+  background: #fde8e8;
+  color: #9b2626;
+}
+
+.pill.info {
+  background: #e3eef8;
+  color: #2c5f8c;
+}
+
+.session-timeout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.session-timeout-dialog {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.session-timeout-icon {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+.session-timeout-dialog h2 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.session-timeout-copy {
+  font-size: 0.95rem;
+  color: #5e756d;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.session-timeout-countdown {
+  color: #9b2626;
+}
+
+.session-timeout-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .slot-card {
   padding: 16px;
   background: linear-gradient(180deg, #ffffff, #f1f8f4);
