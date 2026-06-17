@@ -279,9 +279,9 @@ const createApp = ({ workloadStore, admissionStore, staffUserStore, storageKind 
     response.json({ status: "ok", storage: storageKind });
   });
 
-  app.post("/api/admin/reset-staff", async (request, response) => {
+  app.get("/api/admin/reset-staff", async (request, response) => {
     const resetToken = process.env.ADMIN_RESET_TOKEN;
-    if (!resetToken || request.body?.token !== resetToken) {
+    if (!resetToken || request.query?.token !== resetToken) {
       response.status(403).json({ error: "Forbidden." });
       return;
     }
