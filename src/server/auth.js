@@ -2,7 +2,6 @@ const crypto = require("node:crypto");
 
 const STAFF_ROLE_OPTIONS = [
   "Head admin / super admin",
-  "Super Admin",
   "Inpatient coordinator / ward staff",
   "Inpatient department admin / reception team",
   "Reception / scheduling",
@@ -60,7 +59,7 @@ const buildSessionUser = staffUser => ({
   role: staffUser.role
 });
 
-const isHeadAdminRole = role => ["Head admin / super admin", "Super Admin"].includes(role);
+const isHeadAdminRole = role => role === "Head admin / super admin";
 
 const createAuthToken = staffUser => {
   const payload = {
