@@ -46,6 +46,10 @@ class FileStaffUserStore {
     return data.staffUsers.find(item => item.id === id) || null;
   }
 
+  async deleteAll() {
+    await this.#write({ staffUsers: [] });
+  }
+
   async #read() {
     const raw = await fs.readFile(this.filePath, "utf8");
     return JSON.parse(raw);

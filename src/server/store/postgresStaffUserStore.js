@@ -73,6 +73,10 @@ class PostgresStaffUserStore {
     return result.rows[0] || null;
   }
 
+  async deleteAll() {
+    await this.pool.query("DELETE FROM staff_users");
+  }
+
   async getById(id) {
     const result = await this.pool.query(
       `

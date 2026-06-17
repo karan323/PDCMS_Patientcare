@@ -279,6 +279,16 @@ const createApp = ({ workloadStore, admissionStore, staffUserStore, storageKind 
     response.json({ status: "ok", storage: storageKind });
   });
 
+  app.post("/api/admin/reset-staff", async (request, response) => {
+    const resetToken = process.env.ADMIN_RESET_TOKEN;
+    if (!resetToken || request.body?.token !== resetToken) {
+      response.status(403).json({ error: "Forbidden." });
+      return;
+    }
+    await staffUserStore.deleteAll();
+    response.json({ ok: true, message: "All staff accounts cleared." });
+  });
+
   app.post("/api/auth/register", async (request, response) => {
     const result = validateStaffRegistrationPayload(request.body || {});
     if (result.errors) {
