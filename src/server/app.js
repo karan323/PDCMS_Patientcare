@@ -468,16 +468,18 @@ const createApp = ({ workloadStore, admissionStore, staffUserStore, storageKind 
       return;
     }
 
+    const { auditComment: createComment, changedSectionsSummary: _cs, ...createData } = result.value;
     const item = await admissionStore.create({
-      ...result.value,
+      ...createData,
       auditEvents: [
         createAuditEvent(request, "create", {
           objectType: "admission",
-          patientId: result.value.patientId,
-          admissionId: result.value.admissionId
+          patientId: createData.patientId,
+          admissionId: createData.admissionId,
+          comment: createComment || null
         })
       ],
-      fieldHistory: buildFieldHistory({ existingItem: {}, nextItem: result.value, request })
+      fieldHistory: buildFieldHistory({ existingItem: {}, nextItem: createData, request })
     });
     response.status(201).json(item);
   });
@@ -513,18 +515,23 @@ const createApp = ({ workloadStore, admissionStore, staffUserStore, storageKind 
       return;
     }
 
-    const fieldHistory = buildFieldHistory({ existingItem, nextItem: result.value, request });
+    const { auditComment: editComment, changedSectionsSummary: rawSections, ...editData } = result.value;
+    let changedSections = null;
+    try { changedSections = rawSections ? JSON.parse(rawSections) : null; } catch {}
+    const fieldHistory = buildFieldHistory({ existingItem, nextItem: editData, request });
     const item = await admissionStore.update({
       id: request.params.id,
       admission: {
-        ...result.value,
+        ...editData,
         auditEvents: [
           ...(existingItem.auditEvents || []),
           createAuditEvent(request, "edit", {
             objectType: "admission",
-            patientId: result.value.patientId,
-            admissionId: result.value.admissionId,
-            changedFields: fieldHistory.map(event => event.field)
+            patientId: editData.patientId,
+            admissionId: editData.admissionId,
+            changedFields: fieldHistory.map(event => event.field),
+            changedSections,
+            comment: editComment || null
           })
         ],
         fieldHistory: [...(existingItem.fieldHistory || []), ...fieldHistory]

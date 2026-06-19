@@ -146,7 +146,12 @@ const EXTRA_TEXT_FIELDS = [
   "policySettingNotes",
   "breakGlassReason",
   "auditExportPurpose",
-  "exportApprovedBy"
+  "exportApprovedBy",
+  "doctorConsultNote",
+  "doctorConsultNoteBy",
+  "doctorConsultNoteAt",
+  "dischargeConfirmedBy",
+  "dischargeConfirmedAt"
 ];
 
 const EXTRA_DATE_FIELDS = [
@@ -194,7 +199,8 @@ const EXTRA_BOOLEAN_FIELDS = [
   "dischargeChecklistDocumentsShared",
   "dischargeChecklistRemindersEnabled",
   "dischargeChecklistCaregiverInformed",
-  "dischargePackPublished"
+  "dischargePackPublished",
+  "dischargeConfirmedByDoctor"
 ];
 
 const REPORT_TEXT_FIELDS = [
@@ -637,7 +643,10 @@ const validateAdmissionPayload = (payload, options = {}) => {
       patientPortalPassword,
       patientPortalCredentialsGeneratedAt,
       ...buildLegacyReportFields(reportsResult.value),
-      reports: reportsResult.value
+      reports: reportsResult.value,
+      sectionVisibility: optionalString(payload?.sectionVisibility),
+      auditComment: optionalString(payload?.auditComment),
+      changedSectionsSummary: optionalString(payload?.changedSectionsSummary)
     }
   };
 };

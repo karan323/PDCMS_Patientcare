@@ -202,7 +202,13 @@ const FIELD_CONFIGS = [
   { key: "policySettingNotes", id: "policy-setting-notes" },
   { key: "breakGlassReason", id: "break-glass-reason" },
   { key: "auditExportPurpose", id: "audit-export-purpose" },
-  { key: "exportApprovedBy", id: "export-approved-by" }
+  { key: "exportApprovedBy", id: "export-approved-by" },
+  { key: "doctorConsultNote", id: "doctor-consult-note" },
+  { key: "doctorConsultNoteBy", id: "doctor-consult-note-by" },
+  { key: "doctorConsultNoteAt", id: "doctor-consult-note-at" },
+  { key: "dischargeConfirmedByDoctor", id: "discharge-confirmed-by-doctor", type: "checkbox" },
+  { key: "dischargeConfirmedBy", id: "discharge-confirmed-by" },
+  { key: "dischargeConfirmedAt", id: "discharge-confirmed-at" }
 ];
 
 const CREATE_COPY = {
@@ -669,6 +675,69 @@ const initializeReportWorkspace = ({ reportFields }) => {
   };
 };
 
+const SECTION_DISPLAY_NAMES = {
+  registration: "Patient Registration",
+  profile: "Patient Profile",
+  activity: "Daily Activity",
+  care: "Care Summary",
+  medication: "Medication",
+  reports: "Reports & Diagnostics",
+  consult: "Consultant Visit",
+  availability: "Doctor Availability",
+  discharge: "Discharge Planning",
+  documents: "Document Center",
+  notes: "Internal Notes",
+  audit: "Audit"
+};
+
+const ROLE_PERMISSIONS = {
+  "Inpatient coordinator / ward staff": {
+    editableSections: ["activity", "care", "medication"],
+    hiddenSections: ["audit"],
+    canCreateAdmission: false
+  },
+  "Inpatient department admin / reception team": {
+    editableSections: ["activity", "care", "medication", "audit"],
+    hiddenSections: [],
+    canCreateAdmission: false
+  },
+  "Reception / scheduling": {
+    editableSections: ["registration", "profile", "availability", "consult", "audit"],
+    hiddenSections: [],
+    canCreateAdmission: true
+  },
+  "Nurses": {
+    editableSections: ["profile", "activity", "care", "medication"],
+    hiddenSections: ["audit"],
+    canCreateAdmission: false
+  },
+  "Doctors": {
+    editableSections: ["activity", "care", "medication", "reports", "consult", "availability", "discharge", "notes"],
+    hiddenSections: ["audit"],
+    canCreateAdmission: false
+  },
+  "Consultants": {
+    editableSections: ["consult"],
+    hiddenSections: ["registration", "profile", "documents", "audit"],
+    canCreateAdmission: false
+  },
+  "Diagnostics / lab user": {
+    editableSections: ["reports"],
+    hiddenSections: ["activity", "care", "medication", "consult", "availability", "discharge", "documents", "notes", "audit"],
+    canCreateAdmission: false
+  },
+  "Lab / report staff": {
+    editableSections: ["reports"],
+    hiddenSections: ["activity", "care", "medication", "consult", "availability", "discharge", "documents", "notes", "audit"],
+    canCreateAdmission: false
+  },
+  "Privacy / compliance reviewer": {
+    editableSections: ["documents", "audit"],
+    hiddenSections: [],
+    canCreateAdmission: false
+  }
+};
+
 window.PDCMS.initializeAdmissions = () => {
   const apiUrl = window.PDCMS.productConfig?.apiUrl;
   const auth = window.PDCMS.auth;
@@ -704,6 +773,7 @@ window.PDCMS.initializeAdmissions = () => {
   const saveRecordButton = document.querySelector("[data-record-save]");
   const cancelEditButton = document.querySelector("[data-record-cancel]");
   const recordStatus = document.querySelector("[data-record-status]");
+  const auditCommentInput = document.querySelector("[data-audit-comment]");
   const sectionLabel = document.querySelector("[data-admission-section-label]");
   const sectionTitle = document.querySelector("[data-admission-section-title]");
   const sectionIntro = document.querySelector("[data-admission-section-intro]");
@@ -775,6 +845,7 @@ window.PDCMS.initializeAdmissions = () => {
   const params = new URLSearchParams(window.location.search);
   let currentEditingRecordId = params.get("edit");
   let isEditMode = Boolean(currentEditingRecordId);
+  let lastLoadedRecord = null;
 
   const setStatus = (message, tone = "muted") => {
     status.textContent = message;
@@ -834,7 +905,7 @@ window.PDCMS.initializeAdmissions = () => {
   };
 
   const renderAuditEvents = record => {
-    const events = [...(record?.auditEvents || []), ...(record?.fieldHistory || [])].slice(-12).reverse();
+    const events = [...(Array.isArray(record?.auditEvents) ? record.auditEvents : [])].reverse();
 
     if (events.length === 0) {
       auditEventList.replaceChildren();
@@ -851,11 +922,67 @@ window.PDCMS.initializeAdmissions = () => {
     auditEventList.replaceChildren(
       ...events.map(event => {
         const row = document.createElement("div");
-        const label = document.createElement("span");
-        label.textContent = `${event.eventType || event.field || "Record event"} - ${displayValue(event.userRole || event.authorRole)}`;
-        const detail = document.createElement("strong");
-        detail.textContent = event.timestamp ? normalizeTimeInputValue(event.timestamp) || event.timestamp : "No timestamp";
-        row.append(label, detail);
+        row.className = "audit-event-row";
+
+        const header = document.createElement("div");
+        header.className = "audit-event-header";
+        const who = document.createElement("strong");
+        who.textContent = event.userName || event.userEmail || "Unknown user";
+        const roleTag = document.createElement("span");
+        roleTag.className = "audit-event-role";
+        roleTag.textContent = event.userRole || "";
+        const when = document.createElement("span");
+        when.className = "audit-event-time";
+        when.textContent = event.timestamp ? new Date(event.timestamp).toLocaleString() : "";
+        header.append(who, roleTag, when);
+
+        const actionEl = document.createElement("div");
+        actionEl.className = "audit-event-action";
+        const eventType = event.eventType || event.action || "edit";
+        actionEl.textContent = eventType === "create" ? "Created new admission record" : eventType === "access" ? "Accessed record (read-only)" : "Updated record";
+
+        row.append(header, actionEl);
+
+        const sectionsToRender = (() => {
+          if (event.changedSections && typeof event.changedSections === "object" && !Array.isArray(event.changedSections)) {
+            return Object.entries(event.changedSections).map(([id, fields]) => ({
+              sectionName: SECTION_DISPLAY_NAMES[id] || id,
+              fields: Array.isArray(fields) ? fields : []
+            }));
+          }
+          if (Array.isArray(event.sections) && event.sections.length > 0) {
+            return event.sections.map(sec => ({ sectionName: sec.sectionName || sec.sectionId, fields: sec.fields || [] }));
+          }
+          return [];
+        })();
+
+        if (sectionsToRender.length > 0) {
+          const ul = document.createElement("ul");
+          ul.className = "audit-event-sections";
+          sectionsToRender.forEach(sec => {
+            const li = document.createElement("li");
+            const secName = document.createElement("span");
+            secName.className = "audit-section-name";
+            secName.textContent = sec.sectionName;
+            li.append(secName);
+            if (sec.fields.length > 0) {
+              const fields = document.createElement("span");
+              fields.className = "audit-section-fields";
+              fields.textContent = ` — ${sec.fields.join(", ")}`;
+              li.append(fields);
+            }
+            ul.append(li);
+          });
+          row.append(ul);
+        }
+
+        if (event.comment) {
+          const commentEl = document.createElement("div");
+          commentEl.className = "audit-event-comment";
+          commentEl.textContent = `"${event.comment}"`;
+          row.append(commentEl);
+        }
+
         return row;
       })
     );
@@ -940,6 +1067,165 @@ window.PDCMS.initializeAdmissions = () => {
     config.element.value = value ?? "";
   };
 
+  const ALL_SECTION_IDS = [
+    "registration", "profile", "activity", "care", "medication",
+    "reports", "consult", "availability", "discharge", "documents", "notes", "audit"
+  ];
+
+  const applyRolePermissions = () => {
+    const role = window.PDCMS.auth?.readStoredSession?.()?.user?.role;
+    const perms = ROLE_PERMISSIONS[role];
+    if (!perms) return;
+
+    (perms.hiddenSections || []).forEach(sectionId => {
+      const section = document.getElementById(sectionId);
+      if (section) section.setAttribute("hidden", "");
+      const navLink = document.querySelector(`.sidebar-nav a[href="#${sectionId}"]`);
+      if (navLink) navLink.setAttribute("hidden", "");
+    });
+
+    ALL_SECTION_IDS.forEach(sectionId => {
+      if ((perms.hiddenSections || []).includes(sectionId)) return;
+      if (perms.editableSections.includes(sectionId)) return;
+      const section = document.getElementById(sectionId);
+      if (!section) return;
+
+      section.querySelectorAll("input:not([type='submit']), select, textarea").forEach(el => {
+        el.disabled = true;
+      });
+
+      const sectionHead = section.querySelector(".section-head");
+      if (sectionHead) {
+        const badge = document.createElement("span");
+        badge.className = "read-only-badge";
+        badge.textContent = "View only";
+        sectionHead.appendChild(badge);
+      }
+    });
+
+    if (!perms.canCreateAdmission) {
+      openRegistrationButton?.setAttribute("hidden", "");
+    }
+  };
+
+  const fieldSectionMap = {};
+  const fieldLabelMap = {};
+  FIELD_CONFIGS.forEach(config => {
+    const el = document.getElementById(config.id);
+    if (!el) return;
+    const section = el.closest("section[id]");
+    if (section) fieldSectionMap[config.key] = section.id;
+    const lbl = document.querySelector(`label[for="${config.id}"]`);
+    if (lbl) fieldLabelMap[config.key] = lbl.textContent.trim().replace(/\s+/g, " ");
+  });
+
+  const SKIP_DIFF_KEYS = new Set(["sectionVisibility", "auditEvents", "fieldHistory"]);
+
+  const normalizeForDiff = val => {
+    if (val === null || val === undefined || val === "") return "";
+    if (typeof val === "boolean") return val ? "true" : "false";
+    return String(val).trim();
+  };
+
+  const diffRecord = (oldRecord, newPayload) => {
+    if (!oldRecord) return null;
+    const changed = {};
+    FIELD_CONFIGS.forEach(config => {
+      if (SKIP_DIFF_KEYS.has(config.key)) return;
+      const oldVal = normalizeForDiff(oldRecord[config.key]);
+      const newVal = normalizeForDiff(newPayload[config.key]);
+      if (oldVal === newVal) return;
+      const sectionId = fieldSectionMap[config.key] || "other";
+      if (!changed[sectionId]) changed[sectionId] = [];
+      changed[sectionId].push(fieldLabelMap[config.key] || config.key);
+    });
+    const oldReports = JSON.stringify(oldRecord.reports || []);
+    const newReports = JSON.stringify(newPayload.reports || []);
+    if (oldReports !== newReports) {
+      changed.reports = changed.reports || [];
+      if (!changed.reports.includes("Reports list")) changed.reports.push("Reports list");
+    }
+    return Object.keys(changed).length > 0 ? changed : null;
+  };
+
+  const buildAuditEvent = (changedSections, isNewRecord, comment) => {
+    const session = window.PDCMS.auth?.readStoredSession?.();
+    const user = session?.user;
+    const sections = isNewRecord
+      ? []
+      : Object.entries(changedSections || {}).map(([sectionId, fieldLabels]) => ({
+          sectionId,
+          sectionName: SECTION_DISPLAY_NAMES[sectionId] || sectionId,
+          fields: fieldLabels
+        }));
+    return {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      userName: user?.fullName || user?.name || user?.email || "Unknown user",
+      userEmail: user?.email || "",
+      userRole: user?.role || "Unknown role",
+      action: isNewRecord ? "create" : "update",
+      sections,
+      comment: comment || ""
+    };
+  };
+
+  const parseRecordAuditEvents = record => {
+    if (!record) return record;
+    if (typeof record.auditEvents === "string") {
+      try { record.auditEvents = JSON.parse(record.auditEvents); } catch { record.auditEvents = []; }
+    }
+    if (!Array.isArray(record.auditEvents)) record.auditEvents = [];
+    return record;
+  };
+
+  const VISIBILITY_SECTIONS = [
+    "registration", "profile", "activity", "care", "medication",
+    "reports", "consult", "availability", "discharge", "documents", "notes"
+  ];
+
+  const visibilityCheckboxes = Object.fromEntries(
+    VISIBILITY_SECTIONS.map(id => [id, document.querySelector(`[data-visibility-check="${id}"]`)])
+  );
+
+  VISIBILITY_SECTIONS.forEach(id => {
+    const checkbox = visibilityCheckboxes[id];
+    if (!checkbox) return;
+    const badge = checkbox.closest(".visibility-badge");
+    checkbox.addEventListener("change", () => {
+      badge?.classList.toggle("is-visible", checkbox.checked);
+    });
+  });
+
+  const initVisibilityRole = () => {
+    const role = window.PDCMS.auth?.readStoredSession?.()?.user?.role;
+    const isPrivacyReviewer = role === "Privacy / compliance reviewer";
+    VISIBILITY_SECTIONS.forEach(id => {
+      const checkbox = visibilityCheckboxes[id];
+      if (!checkbox) return;
+      const badge = checkbox.closest(".visibility-badge");
+      badge?.classList.toggle("is-editable", isPrivacyReviewer);
+      checkbox.disabled = !isPrivacyReviewer;
+    });
+  };
+
+  const populateVisibility = record => {
+    let parsed = {};
+    try { parsed = JSON.parse(record.sectionVisibility || "{}"); } catch {}
+    VISIBILITY_SECTIONS.forEach(id => {
+      const checkbox = visibilityCheckboxes[id];
+      if (!checkbox) return;
+      const badge = checkbox.closest(".visibility-badge");
+      const visible = parsed[id] === true;
+      checkbox.checked = visible;
+      badge?.classList.toggle("is-visible", visible);
+    });
+  };
+
+  const collectVisibility = () => JSON.stringify(
+    Object.fromEntries(VISIBILITY_SECTIONS.map(id => [id, visibilityCheckboxes[id]?.checked === true]))
+  );
+
   const readPayload = () => {
     const payload = Object.fromEntries(Object.entries(fields).map(([key, config]) => [key, getFieldValue(config)]));
     const reportPayload = reportWorkspace.preparePayload();
@@ -950,7 +1236,8 @@ window.PDCMS.initializeAdmissions = () => {
 
     return {
       ...payload,
-      ...reportPayload
+      ...reportPayload,
+      sectionVisibility: collectVisibility()
     };
   };
 
@@ -961,6 +1248,7 @@ window.PDCMS.initializeAdmissions = () => {
     reportWorkspace.syncFromRecord(record);
     syncAvailabilityPreview();
     renderPatientContext(record);
+    populateVisibility(record);
   };
 
   const requestJson = async (url, options = {}) => {
@@ -1040,6 +1328,12 @@ window.PDCMS.initializeAdmissions = () => {
       return;
     }
 
+    const comment = auditCommentInput?.value?.trim() || "";
+    const changedSections = wasEditMode ? diffRecord(lastLoadedRecord, payload) : null;
+    payload.auditComment = comment;
+    payload.changedSectionsSummary = changedSections ? JSON.stringify(changedSections) : "";
+    if (auditCommentInput) auditCommentInput.value = "";
+
     setBusy(true);
     setStatus(wasEditMode ? "Saving changes..." : "Saving admission...");
     setRecordStatus(wasEditMode ? "Saving changes..." : "Saving admission...");
@@ -1053,6 +1347,7 @@ window.PDCMS.initializeAdmissions = () => {
         }
       );
 
+      lastLoadedRecord = admission;
       currentEditingRecordId = admission.id;
       isEditMode = true;
       syncEditUrl(admission.id);
@@ -1090,6 +1385,7 @@ window.PDCMS.initializeAdmissions = () => {
 
     try {
       const record = await requestJson(apiUrl(`/api/admissions/${recordId}`));
+      lastLoadedRecord = record;
       currentEditingRecordId = record.id;
       isEditMode = true;
       populateFields(record);
@@ -1133,6 +1429,17 @@ window.PDCMS.initializeAdmissions = () => {
     fields[key].element.addEventListener("change", syncAvailabilityPreview);
   });
 
+  const restrictDoctorOnlyFields = () => {
+    const role = window.PDCMS.auth?.readStoredSession?.()?.user?.role;
+    const canConfirmDischarge = role === "Doctors" || role === "Head admin / super admin";
+    document.querySelectorAll("[data-doctor-only]").forEach(el => {
+      el.disabled = !canConfirmDischarge;
+    });
+  };
+
+  initVisibilityRole();
+  applyRolePermissions();
+  restrictDoctorOnlyFields();
   setModeCopy();
   syncAvailabilityPreview();
 

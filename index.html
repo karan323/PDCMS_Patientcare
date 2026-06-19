@@ -235,6 +235,7 @@
             <h3 data-admission-section-title>Patient registration and admission entry</h3>
           </div>
           <p class="section-intro" data-admission-section-intro>All core identity, admission, doctor assignment, emergency, and clinical entry points are grouped here so the patient record starts complete.</p>
+          <label class="visibility-badge" data-visibility-section="registration"><input type="checkbox" data-visibility-check="registration" disabled><span>Visible to patient family</span></label>
         </div>
         <form class="form-grid admission-form" data-admission-form>
           <div class="field"><label for="patient-id">Patient ID</label><input id="patient-id" type="text" value="" placeholder=""></div>
@@ -279,7 +280,7 @@
 
       <section id="profile" class="surface two-column" data-collapsible hidden>
         <div>
-          <div class="section-head compact"><div><p class="section-label">Module 03</p><h3>Patient profile management</h3></div></div>
+          <div class="section-head compact"><div><p class="section-label">Module 03</p><h3>Patient profile management</h3></div><label class="visibility-badge" data-visibility-section="profile"><input type="checkbox" data-visibility-check="profile" disabled><span>Visible to patient family</span></label></div>
           <div class="patient-context-strip" data-patient-context-strip>
             <div>
               <p class="section-label">Current patient</p>
@@ -322,6 +323,7 @@
         <div class="section-head">
           <div><p class="section-label">Module 04</p><h3>Daily activity and clinical updates</h3></div>
           <p class="section-intro">This area is optimized for repetitive ward activity entries with date and time traceability.</p>
+          <label class="visibility-badge" data-visibility-section="activity"><input type="checkbox" data-visibility-check="activity" disabled><span>Visible to patient family</span></label>
         </div>
         <div class="subsection-grid">
           <div class="subsurface">
@@ -353,7 +355,7 @@
       </section>
 
       <section id="care" class="surface" data-collapsible hidden>
-        <div class="section-head"><div><p class="section-label">Module 05</p><h3>Care summary and treatment summary</h3></div></div>
+        <div class="section-head"><div><p class="section-label">Module 05</p><h3>Care summary and treatment summary</h3></div><label class="visibility-badge" data-visibility-section="care"><input type="checkbox" data-visibility-check="care" disabled><span>Visible to patient family</span></label></div>
         <div class="form-grid">
           <div class="field field-span-2"><label for="provisional-diagnosis">Provisional diagnosis</label><textarea id="provisional-diagnosis" rows="3"></textarea></div>
           <div class="field field-span-2"><label for="final-diagnosis">Confirmed / final diagnosis</label><textarea id="final-diagnosis" rows="3"></textarea></div>
@@ -379,6 +381,7 @@
         <div class="section-head">
           <div><p class="section-label">Module 06</p><h3>Medication, prescriptions, and administration log</h3></div>
           <p class="section-intro">Medication order entry and medication administration are shown together because ward staff use them as one continuous workflow.</p>
+          <label class="visibility-badge" data-visibility-section="medication"><input type="checkbox" data-visibility-check="medication" disabled><span>Visible to patient family</span></label>
         </div>
         <div class="subsection-grid">
           <div class="subsurface">
@@ -440,6 +443,7 @@
             <h3>Reports and diagnostics management</h3>
           </div>
           <p class="section-intro">Track report ordering, scheduling, result availability, and patient-facing visibility by report category.</p>
+          <label class="visibility-badge" data-visibility-section="reports"><input type="checkbox" data-visibility-check="reports" disabled><span>Visible to patient family</span></label>
         </div>
         <div class="report-workspace">
           <div class="report-tab-list" role="tablist" aria-label="Report categories">
@@ -508,7 +512,7 @@
       </section>
 
       <section id="consult" class="surface" data-collapsible hidden>
-        <div class="section-head"><div><p class="section-label">Module 08</p><h3>Consultant visit scheduling</h3></div></div>
+        <div class="section-head"><div><p class="section-label">Module 08</p><h3>Consultant visit scheduling</h3></div><label class="visibility-badge" data-visibility-section="consult"><input type="checkbox" data-visibility-check="consult" disabled><span>Visible to patient family</span></label></div>
         <div class="form-grid">
           <div class="field"><label for="consult-requested-by">Requested by</label><input id="consult-requested-by" type="text"></div>
           <div class="field"><label for="consultant-name">Consultant doctor name</label><input id="consultant-name" type="text"></div>
@@ -520,12 +524,21 @@
           <div class="field"><label for="consult-reschedule-reason">Reschedule/cancel reason</label><input id="consult-reschedule-reason" type="text"></div>
           <div class="field field-span-2"><label for="consult-notes">Notes after consult</label><textarea id="consult-notes" rows="3"></textarea></div>
         </div>
+        <div class="subsurface doctor-note-panel">
+          <h4>Doctor assessment note</h4>
+          <div class="form-grid compact-grid">
+            <div class="field field-span-2"><label for="doctor-consult-note">Clinical assessment and findings</label><textarea id="doctor-consult-note" rows="4" placeholder="Doctor's clinical assessment, observations, and recommendations from this consultant visit"></textarea></div>
+            <div class="field"><label for="doctor-consult-note-by">Note written by</label><input id="doctor-consult-note-by" type="text" placeholder="Doctor name"></div>
+            <div class="field"><label for="doctor-consult-note-at">Note timestamp</label><input id="doctor-consult-note-at" type="datetime-local"></div>
+          </div>
+        </div>
       </section>
 
       <section id="availability" class="surface" data-collapsible hidden>
         <div class="section-head">
           <div><p class="section-label">Module 09</p><h3>Doctor availability and follow-up booking</h3></div>
           <p class="section-intro">Staff need 4 to 5 visible dates with clear slots so appointments can be confirmed during the same call or bedside interaction.</p>
+          <label class="visibility-badge" data-visibility-section="availability"><input type="checkbox" data-visibility-check="availability" disabled><span>Visible to patient family</span></label>
         </div>
         <div class="availability-grid">
           <article class="slot-card"><p class="slot-date">Slot 1</p><strong data-availability-slot-preview="1">Not configured</strong><span>Doctor availability</span></article>
@@ -561,7 +574,7 @@
       </section>
 
       <section id="discharge" class="surface" data-collapsible hidden>
-        <div class="section-head"><div><p class="section-label">Module 10</p><h3>Discharge planning</h3></div></div>
+        <div class="section-head"><div><p class="section-label">Module 10</p><h3>Discharge planning</h3></div><label class="visibility-badge" data-visibility-section="discharge"><input type="checkbox" data-visibility-check="discharge" disabled><span>Visible to patient family</span></label></div>
         <div class="form-grid">
           <div class="field"><label for="expected-discharge">Expected discharge date</label><input id="expected-discharge" type="date"></div>
           <div class="field"><label for="discharge-date">Discharge date</label><input id="discharge-date" type="date"></div>
@@ -587,6 +600,17 @@
             <label><input id="discharge-checklist-caregiver-informed" type="checkbox"> Caregiver informed</label>
             <label><input id="discharge-pack-published" type="checkbox"> Publish approved discharge pack to patient portal</label>
           </div>
+          <div class="field field-span-full discharge-confirm-panel">
+            <p class="section-label">Doctor discharge confirmation</p>
+            <label class="checkbox-line doctor-confirm-line" for="discharge-confirmed-by-doctor">
+              <input id="discharge-confirmed-by-doctor" type="checkbox" data-doctor-only>
+              <span>Discharge confirmed by attending doctor</span>
+            </label>
+            <div class="discharge-confirm-fields">
+              <div class="field"><label for="discharge-confirmed-by">Confirming doctor</label><input id="discharge-confirmed-by" type="text" data-doctor-only placeholder="Doctor full name"></div>
+              <div class="field"><label for="discharge-confirmed-at">Confirmed at</label><input id="discharge-confirmed-at" type="datetime-local" data-doctor-only></div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -594,6 +618,7 @@
         <div class="section-head">
           <div><p class="section-label">Module 11</p><h3>Document center and file governance</h3></div>
           <p class="section-intro">Classify inpatient documents with conservative visibility defaults, ownership, version status, and replacement traceability.</p>
+          <label class="visibility-badge" data-visibility-section="documents"><input type="checkbox" data-visibility-check="documents" disabled><span>Visible to patient family</span></label>
         </div>
         <div class="form-grid">
           <div class="field"><label for="document-category">Document category</label><select id="document-category"><option value="" selected></option><option>Prescription</option><option>Report</option><option>Consent form</option><option>Discharge file</option><option>Referral</option><option>Scanned document</option></select></div>
@@ -608,6 +633,7 @@
       </section>
 
       <section id="notes" class="surface two-column" data-collapsible hidden>
+        <div class="section-head compact"><div><p class="section-label">Notes</p><h3>Internal notes and communication</h3></div><label class="visibility-badge" data-visibility-section="notes"><input type="checkbox" data-visibility-check="notes" disabled><span>Visible to patient family</span></label></div>
         <div class="subsurface">
           <h4>Internal notes and communication</h4>
           <div class="form-grid compact-grid">
@@ -658,6 +684,10 @@
 
       <section class="footer-actions" data-collapsible-shared hidden>
         <p class="form-status" data-record-status aria-live="polite"></p>
+        <div class="footer-audit-row">
+          <label class="footer-audit-label" for="audit-change-comment">Change note <span>(optional — recorded in audit log)</span></label>
+          <input id="audit-change-comment" type="text" placeholder="Briefly describe what you changed or why" data-audit-comment>
+        </div>
         <div class="footer-action-group">
           <button class="secondary-btn" type="button" data-record-cancel hidden>Cancel</button>
           <button class="primary-btn" type="button" data-record-save>Save admission</button>
